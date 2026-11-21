@@ -1,0 +1,24 @@
+# dependencias
+/node_modules
+
+# build do Next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# CHAVES E SEGREDOS: nunca vao para o Git
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+# (o .env.example, sem valores, PODE ir para o Git)
+!.env.example
+
+# logs e sistema
+npm-debug.log*
+.DS_Store
+*.pem
+.vercel
