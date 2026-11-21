@@ -62,6 +62,6 @@ outro motel).
 ## Como a segurança funciona
 
 - **`src/proxy.ts`** roda antes de cada página. Ele renova a sessão e manda para o `/login` quem não está logado.
-- Toda conversa com o Supabase acontece **no servidor** (Server Actions), sempre com a chave pública.
+- Toda conversa com o Supabase acontece **no servidor** (Server Actions), com a chave pública. A única exceção é a tela da equipe, que usa a chave secreta (veja acima).
 - Quem decide o que cada pessoa pode ver é o **banco** (RLS). A pessoa só lê a própria linha de
   `motel_members` e os motéis dos quais é membro **ativo**.
