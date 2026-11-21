@@ -20,7 +20,9 @@ export async function GET(request: NextRequest) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     ok = !error;
-  } else if (tokenHash && type === "recovery") {
+  } else if (tokenHash && (type === "recovery" || type === "invite")) {
+    // recovery = esqueci a senha; invite = convite da equipe.
+    // Nos dois casos a pessoa vai criar a senha em /redefinir-senha.
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     ok = !error;
   }

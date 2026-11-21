@@ -40,8 +40,24 @@ O banco já foi criado com [`supabase/01_base_multi_motel.sql`](supabase/01_base
 | `/auth/confirm` | Destino do link do e-mail. Valida o link e leva para `/redefinir-senha`. |
 | `/redefinir-senha` | Criar a nova senha (só com sessão aberta). |
 | `/painel` | Página protegida: nome do motel e perfil, lidos de `motel_members` + `motels`. |
+| `/painel/equipe/[id do motel]` | **Só para o dono:** convidar pessoas, trocar perfil, desativar/reativar. |
 
 O botão **Sair** fica no painel.
+
+## Equipe (etapa 2): configuração extra
+
+1. Em `.env.local`, adicione a chave secreta **só para o servidor**:
+   `SUPABASE_SECRET_KEY=sb_secret_...` (ou a antiga `service_role`). **Sem** `NEXT_PUBLIC_` na frente.
+2. No Supabase, em **Authentication → Emails → Invite user**, troque o link do e-mail por:
+   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite`
+
+A chave secreta é usada só em `src/lib/supabase/admin.ts` (marcado `server-only`) e só depois de o
+banco confirmar que quem pediu é **dono ativo** do motel. Ela serve apenas para enviar o convite e para
+mostrar o e-mail da equipe. O vínculo com o motel e o perfil são gravados com a sessão do dono e
+conferidos pelas regras de RLS. Cada ação fica registrada em `audit_logs` via `log_audit`.
+
+Limitação atual: não dá para convidar um e-mail que **já tem conta** (por exemplo, quem já trabalha em
+outro motel).
 
 ## Como a segurança funciona
 

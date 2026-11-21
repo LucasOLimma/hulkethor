@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth-actions";
@@ -68,7 +69,14 @@ export default async function PainelPage() {
             {vinculos.map((v) => (
               <li key={v.motelId}>
                 <span className="motel-name">{v.motelName}</span>
-                <span className="badge">{ROLE_LABEL[v.role] ?? v.role}</span>
+                <span className="member-actions">
+                  <span className="badge">{ROLE_LABEL[v.role] ?? v.role}</span>
+                  {v.role === "dono" && (
+                    <Link href={`/painel/equipe/${v.motelId}`} className="btn-link">
+                      Equipe →
+                    </Link>
+                  )}
+                </span>
               </li>
             ))}
           </ul>
