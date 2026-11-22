@@ -5,6 +5,8 @@ import { requireMotel } from "@/lib/motel-access";
 import { PageHeader } from "@/components/app/page-header";
 import { NewSuite, SuiteCard, type CategoryOption, type Suite } from "./suite-forms";
 import { SuiteCategories, type KitProduct, type SuiteCategory } from "./category-forms";
+import { photoUrl } from "@/lib/suite-photos";
+import type { PhotoView } from "./photo-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +69,18 @@ export default async function SuitesPage({ params }: { params: Promise<{ motelId
       }),
   }));
 
+  // fotos (07_portal_cliente.sql): so o dono gerencia
+  const photosR = ctx.isOwner
+    ? await ctx.supabase.from("suite_photos").select("id, suite_id, path, position, created_at").eq("motel_id", ctx.motel.id).order("position").order("created_at")
+    : null;
+  const photosOn = Boolean(photosR && !photosR.error);
+  const photosBy = new Map<string, PhotoView[]>();
+  for (const ph of photosR?.data ?? []) {
+    const arr = photosBy.get(ph.suite_id as string) ?? [];
+    arr.push({ id: ph.id as string, url: photoUrl(ph.path as string) });
+    photosBy.set(ph.suite_id as string, arr);
+  }
+
   const activeCount = suites.filter((s) => s.active).length;
 
   return (
@@ -96,7 +110,14 @@ export default async function SuitesPage({ params }: { params: Promise<{ motelId
         ) : (
           <ul className="suite-list">
             {suites.map((s) => (
-              <SuiteCard key={s.id} motelId={ctx.motel.id} suite={s} canEdit={ctx.isOwner} categories={catOptions} />
+              <SuiteCard
+                key={s.id}
+                motelId={ctx.motel.id}
+                suite={s}
+                canEdit={ctx.isOwner}
+                categories={catOptions}
+                photos={photosOn ? (photosBy.get(s.id) ?? []) : undefined}
+              />
             ))}
           </ul>
         )}

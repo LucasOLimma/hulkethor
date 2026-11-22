@@ -7,6 +7,10 @@ import { todayIn, addDays } from "@/lib/dashboard-data";
 import { formatCents, PERIOD_LABEL, PERIODS, readPrices } from "@/lib/periods";
 import { BRAND } from "@/lib/brand";
 import { SuiteRequest, type PublicSuite } from "./request-form";
+import { SuiteGallery } from "./gallery";
+import { ItemIcon } from "@/components/public/item-icon";
+import { photoUrl } from "@/lib/suite-photos";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +19,9 @@ type PublicMotel = {
   slug: string;
   address: string | null;
   timezone: string;
-  suites: { id: string; number: string; type: string; prices_cents: unknown; items: string[] | null }[];
+  /** so existe com o 07_portal_cliente.sql rodado */
+  cancel_hours?: number;
+  suites: { id: string; number: string; type: string; prices_cents: unknown; items: string[] | null; photos?: string[] }[];
 };
 
 // Le pela funcao publica do banco (so dados do motel e suites ATIVAS;
@@ -45,7 +51,9 @@ export default async function PublicMotelPage({ params }: { params: Promise<{ sl
     type: s.type,
     items: s.items ?? [],
     prices: readPrices(s.prices_cents),
+    photos: (s.photos ?? []).filter((p) => typeof p === "string").map(photoUrl),
   }));
+  const portal = typeof motel.cancel_hours === "number";
 
   return (
     <div className="public-page">
@@ -56,9 +64,16 @@ export default async function PublicMotelPage({ params }: { params: Promise<{ sl
           <p className="public-eyebrow">Suítes e reservas</p>
           <h1>{motel.name}</h1>
           {motel.address && <p className="public-address">{motel.address}</p>}
-          <a href="#suites" className="btn-gold">
-            Ver suítes e reservar
-          </a>
+          <div className="public-hero-ctas">
+            <a href="#suites" className="btn-gold">
+              Ver suítes e reservar
+            </a>
+            {portal && (
+              <Link href={`/m/${motel.slug}/minha-reserva`} className="btn-ghost">
+                Minha Reserva
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
@@ -76,16 +91,17 @@ export default async function PublicMotelPage({ params }: { params: Promise<{ sl
               const offered = PERIODS.filter((p) => s.prices[p] !== undefined);
               return (
                 <li key={s.id} className="public-suite">
-                  <div className="public-suite-cover" aria-hidden="true">
-                    <span>{s.number}</span>
-                  </div>
+                  <SuiteGallery photos={s.photos} number={s.number} />
                   <div className="public-suite-body">
                     <h3>Suíte {s.number}</h3>
                     <p className="public-suite-type">{s.type}</p>
                     {s.items.length > 0 && (
                       <ul className="public-items">
                         {s.items.map((it) => (
-                          <li key={it}>{it}</li>
+                          <li key={it}>
+                            <ItemIcon item={it} />
+                            {it}
+                          </li>
                         ))}
                       </ul>
                     )}
@@ -97,7 +113,7 @@ export default async function PublicMotelPage({ params }: { params: Promise<{ sl
                         </div>
                       ))}
                     </dl>
-                    <SuiteRequest slug={motel.slug} suite={s} today={today} maxDate={addDays(today, 60)} />
+                    <SuiteRequest slug={motel.slug} suite={s} today={today} maxDate={addDays(today, 60)} withPhone={portal} />
                   </div>
                 </li>
               );
@@ -107,6 +123,7 @@ export default async function PublicMotelPage({ params }: { params: Promise<{ sl
 
         <p className="public-legal">
           Somente para maiores de 18 anos. Os dados informados são usados apenas para a sua reserva.
+          {portal && motel.cancel_hours! > 0 && ` Cancelamento pelo site até ${motel.cancel_hours} h antes da chegada, em Minha Reserva.`}
         </p>
       </main>
 

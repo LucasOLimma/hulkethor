@@ -71,3 +71,18 @@ Fase 1C: **Central de Turnos** e **caixa**. Só acrescenta; rode o arquivo intei
 - Funções: `shift_open`, `shift_close`, `shift_summary`, `shift_last_handover`, `cash_movement_add`,
   `reservation_checkout` (saída + pagamento numa transação), `payment_register` (receber saldo) e
   `payment_reverse` (dono).
+
+## 07_portal_cliente.sql (precisa do 01 ao 06 antes)
+
+Fase 2: **fotos das suítes**, **disponibilidade** e **Minha Reserva**. Rode o arquivo inteiro de uma vez.
+O fim mostra como desfazer.
+- **Duas colunas novas e opcionais** (justificativa no arquivo): `reservations.guest_phone` (celular, só números,
+  para o cliente consultar/cancelar com o código, sem conta e sem senha) e `motel_settings.client_cancel_hours`
+  (prazo de cancelamento pelo cliente; padrão 2 h). Nada existente é alterado.
+- **Storage:** cria a pasta pública `suite-photos` (até 3 MB por arquivo, só imagens). Só o **dono** envia ou apaga,
+  e só dentro da pasta do próprio motel (`<motel>/<suíte>/arquivo`). Tabela `suite_photos` guarda a ordem (até 8).
+- `public_motel_page` passa a devolver as fotos e o prazo de cancelamento.
+- `public_availability`: só os intervalos já ocupados da suíte no dia (com a limpeza), sem dados de hóspedes.
+- `public_request_reservation_v2`: pedido com celular (usa as mesmas validações do 03).
+- `public_my_reservation` / `public_cancel_reservation`: código + celular. Limite contra adivinhação: 5 erros no
+  mesmo código, ou 200 no motel, em 15 minutos, bloqueiam por 15 minutos.

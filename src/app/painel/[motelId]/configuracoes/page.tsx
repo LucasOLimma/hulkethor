@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireMotel } from "@/lib/motel-access";
 import { PageHeader } from "@/components/app/page-header";
+import { CancelHoursForm } from "./cancel-form";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,27 @@ export default async function ConfiguracoesPage({ params }: { params: Promise<{ 
     .eq("motel_id", ctx.motel.id)
     .maybeSingle();
 
+  // prazo de cancelamento pelo cliente (07_portal_cliente.sql; sem ele, nao aparece)
+  const { data: c, error: cErr } = await ctx.supabase
+    .from("motel_settings")
+    .select("client_cancel_hours")
+    .eq("motel_id", ctx.motel.id)
+    .maybeSingle();
+  const cancelHours = !cErr && c ? Number(c.client_cancel_hours) : null;
+
   return (
     <>
-      <PageHeader title="Configurações" subtitle="Valores atuais deste estabelecimento (somente leitura por enquanto)." />
+      <PageHeader title="Configurações" subtitle="Valores atuais deste estabelecimento." />
+      {cancelHours !== null && (
+        <div className="content-card">
+          <h2 className="card-title">Reservas pelo site</h2>
+          {ctx.isOwner ? (
+            <CancelHoursForm motelId={ctx.motel.id} hours={cancelHours} />
+          ) : (
+            <p>O cliente pode cancelar pelo site até {cancelHours} h antes da chegada.</p>
+          )}
+        </div>
+      )}
       <div className="content-card">
         {error ? (
           <p className="alert error" role="alert">Não foi possível carregar as configurações agora.</p>

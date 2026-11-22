@@ -162,6 +162,24 @@ O botão **Sair** fica no painel.
   dinheiro, Pix, crédito e débito), com o turno aberto. Consumo informado depois da saída aparece como saldo e é
   recebido pela própria conta. Só o dono estorna pagamentos.
 
+## Portal do cliente e Minha Reserva (Fase 2)
+
+- Requer `supabase/07_portal_cliente.sql`. Sem ele, a página pública funciona como antes (sem fotos e sem celular).
+- **Página pública** (`/m/[slug]`):
+  - fotos reais de cada suíte (galeria) e os itens com ícones;
+  - ao escolher a data, mostra os horários já ocupados da suíte, sem nenhum dado de hóspede;
+  - o pedido pede o **celular com DDD**.
+- **Minha Reserva** (`/m/[slug]/minha-reserva`):
+  - o cliente entra com o **código + celular**, sem conta e sem senha;
+  - vê a situação (aguardando, confirmada, cancelada…) e os detalhes;
+  - cancela até o prazo definido pelo dono.
+- **Painel:**
+  - **Suítes** (só o dono): até 8 fotos por suíte, reduzidas no navegador para no máximo 1600 px em WebP, com
+    "usar como capa" e apagar;
+  - **Configurações:** prazo de cancelamento pelo cliente;
+  - **Reservas:** celular do cliente visível para o dono e a recepção, e campo opcional na reserva feita pela
+    equipe.
+
 ## Visualizador 3D (suíte demonstrativa realista)
 
 - **Página:** `/demo/suite-3d` (pública). `?qualidade=rapida` força o modo leve.

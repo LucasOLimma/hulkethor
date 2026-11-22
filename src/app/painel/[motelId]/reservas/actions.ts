@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { can, requireMotel } from "@/lib/motel-access";
 import { todayIn, addDays } from "@/lib/dashboard-data";
 import { PERIODS, PERIOD_LABEL, parseReais, readPrices, type Period } from "@/lib/periods";
+import { normalizePhone } from "@/lib/phone";
 import {
   BLOCKING_STATUSES,
   STATUS_LABEL,
@@ -49,6 +50,10 @@ async function readForm(ctx: Desk, fd: FormData) {
   const guest = text(fd, "guest", 80);
   const decoration = text(fd, "decoration", 200);
   const adult = fd.get("adult") === "on";
+  // celular so existe no formulario com o 07_portal_cliente.sql rodado
+  const phoneRaw = fd.has("phone") ? text(fd, "phone", 30) : null;
+  const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
+  if (phoneRaw && !phone) return { error: "Celular inválido. Use DDD + número, por exemplo (11) 98765-4321." } as const;
 
   if (!UUID_RE.test(suiteId)) return { error: "Escolha a suíte." } as const;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: "Informe a data." } as const;
@@ -89,6 +94,8 @@ async function readForm(ctx: Desk, fd: FormData) {
       guest: guest || null,
       decoration: decoration || null,
       total,
+      // undefined = nao mexe na coluna (recurso ainda nao ativado)
+      phone: phoneRaw === null ? undefined : phone,
     },
   } as const;
 }
@@ -152,6 +159,7 @@ export async function createReservation(_prev: ReservationState, fd: FormData): 
         decoration: f.decoration,
         status: "confirmada",
         adult_confirmed: true,
+        ...(f.phone !== undefined ? { guest_phone: f.phone } : {}),
       })
       .select("id")
       .single();
@@ -191,6 +199,7 @@ export async function updateReservation(_prev: ReservationState, fd: FormData): 
       arrival_time: f.time,
       total_cents: f.total,
       decoration: f.decoration,
+      ...(f.phone !== undefined ? { guest_phone: f.phone } : {}),
     })
     .eq("id", id)
     .eq("motel_id", ctx.motel.id)
