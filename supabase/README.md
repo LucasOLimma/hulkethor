@@ -37,3 +37,21 @@ Rode o arquivo inteiro de uma vez. O fim do arquivo mostra como desfazer.
   (consumo/uso interno: dono e recepção; perda/avaria/vencimento: dono), `stock_transfer` (enxoval: dono e
   recepção), `stock_reverse` (dono), `inventory_open` / `inventory_count` (dono e recepção),
   `inventory_close` / `inventory_cancel` (dono) e `stock_alerts` (toda a equipe).
+
+## 05_operacao.sql (precisa do 01 ao 04 antes)
+
+Fase 1B: **limpeza**, **kit padrão por categoria de suíte** e **conta da hospedagem**. Rode o arquivo inteiro de uma vez.
+O fim do arquivo mostra como desfazer.
+- **Migração (com justificativa):** cria `suite_categories` e a coluna **opcional** `suites.category_id`. Para cada
+  tipo já usado nas suítes (ignorando maiúsculas e espaços) cria uma categoria e liga as suítes a ela. A coluna
+  `type` **não é alterada nem apagada**. Motivo: o kit padrão é por categoria, e `type` é texto livre.
+- `suite_category_kits`: o que a camareira repõe a cada limpeza. O enxoval é **trocado** (estoque → suíte →
+  lavanderia) e os amenities saem do estoque.
+- `housekeeping_tasks`: criada **sozinha** quando a reserva vai para "concluída" (saída), ou pedida pela recepção.
+  Fica com a suíte e o horário, sem nenhum dado do hóspede (a camareira continua sem ver reservas).
+  "Problema" segura a suíte até o dono ou a recepção resolver.
+- `reservation_charges`: consumos lançados na reserva, com baixa no estoque. Nada é apagado: correção é estorno
+  (só o dono), e o item volta ao estoque.
+- Funções: `housekeeping_request` / `housekeeping_resolve` / `housekeeping_cancel` (dono e recepção),
+  `housekeeping_start` / `housekeeping_finish` (toda a equipe), `reservation_charge_add` (dono e recepção) e
+  `reservation_charge_reverse` (dono).

@@ -272,7 +272,8 @@ export type IconName =
   | "door"
   | "percent"
   | "users"
-  | "estoque";
+  | "estoque"
+  | "limpeza";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   dashboard: <><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 9.5V20h13V9.5" /><path d="M10 20v-5h4v5" /></>,
@@ -294,6 +295,7 @@ const PATHS: Record<IconName, React.ReactNode> = {
   trend: <><path d="M3 17 9 11l4 4 8-8" /><path d="M15 7h6v6" /></>,
   door: <><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18" /><path d="M15 12h.01" /></>,
   estoque: <><path d="M3 8.5 12 4l9 4.5v8L12 21l-9-4.5v-8Z" /><path d="M3 8.5 12 13l9-4.5M12 13v8M7.5 6.3l9 4.5" /></>,
+  limpeza: <><path d="M15 3 9.5 11.5" /><path d="M7 11.5h6.5l2 3.5c.8 1.5.3 3.4-1.1 4.3L12 21H5.5L4 17.5c-.7-1.6-.2-3.5 1.2-4.5L7 11.5Z" /><path d="M8 21l1-4M11.5 21l.5-3" /></>,
   percent: <><path d="M19 5 5 19" /><circle cx="7" cy="7" r="2.5" /><circle cx="17" cy="17" r="2.5" /></>,
 };
 

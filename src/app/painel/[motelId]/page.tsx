@@ -19,6 +19,8 @@ export const dynamic = "force-dynamic";
 const OP_LABEL: Record<SuiteOpStatus, string> = {
   livre: "Livre",
   ocupada: "Ocupada",
+  limpeza: "Em limpeza",
+  problema: "Com problema",
   reservada: "Reservada hoje",
   desativada: "Desativada",
 };
@@ -372,6 +374,8 @@ function StatusIcon({ status }: { status: SuiteOpStatus }) {
     livre: <path d="m5 12 5 5 9-10" />,
     ocupada: <><circle cx="12" cy="8" r="3.2" /><path d="M5.5 20c.7-3.6 3.2-5.6 6.5-5.6s5.8 2 6.5 5.6" /></>,
     reservada: <><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></>,
+    limpeza: <><path d="M15 3 9.5 11.5" /><path d="M7 11.5h6.5l2 3.5c.8 1.5.3 3.4-1.1 4.3L12 21H5.5L4 17.5c-.7-1.6-.2-3.5 1.2-4.5Z" /></>,
+    problema: <><path d="M12 4 2.5 20h19L12 4Z" /><path d="M12 10v4M12 17h.01" /></>,
     desativada: <path d="M6 12h12" />,
   }[status];
   return (

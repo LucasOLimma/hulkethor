@@ -32,6 +32,7 @@ export default async function MotelLayout({
           { href: `${base}/clientes`, label: "Clientes", icon: "clientes" },
         ] as NavItem[])
       : []),
+    { href: `${base}/limpeza`, label: "Limpeza", icon: "limpeza" },
     { href: `${base}/estoque`, label: "Estoque", icon: "estoque" },
     ...(perm.team ? ([{ href: `${base}/equipe`, label: "Equipe", icon: "equipe" }] as NavItem[]) : []),
     ...(perm.reports
@@ -46,8 +47,21 @@ export default async function MotelLayout({
 
   // Sininho: alertas reais do estoque (abaixo do minimo, negativo, validade).
   // Se o 04_estoque.sql ainda nao foi rodado, a funcao nao existe: sem avisos.
-  const { data: alertRows } = await ctx.supabase.rpc("stock_alerts", { p_motel: ctx.motel.id });
-  const notices: Notice[] = readAlerts(alertRows).map((a, i) => ({
+  // + suites aguardando limpeza / com problema (05_operacao.sql; sem ele, nada).
+  const [{ data: alertRows }, { data: taskRows }, { data: suiteRows }] = await Promise.all([
+    ctx.supabase.rpc("stock_alerts", { p_motel: ctx.motel.id }),
+    ctx.supabase.from("housekeeping_tasks").select("id, suite_id, status").eq("motel_id", ctx.motel.id).in("status", ["aguardando", "problema"]),
+    ctx.supabase.from("suites").select("id, number").eq("motel_id", ctx.motel.id),
+  ]);
+  const suiteNumber = new Map((suiteRows ?? []).map((s) => [s.id as string, s.number as string]));
+  const taskNotices: Notice[] = (taskRows ?? []).map((t) => ({
+    id: `hk-${t.id}`,
+    title: t.status === "problema" ? `Suíte ${suiteNumber.get(t.suite_id as string) ?? ""} com problema` : `Suíte ${suiteNumber.get(t.suite_id as string) ?? ""} aguardando limpeza`,
+    text: t.status === "problema" ? "Bloqueada até alguém resolver." : "Já pode ser limpa.",
+    href: `${base}/limpeza`,
+    tone: t.status === "problema" ? "bad" : "warn",
+  }));
+  const stockNotices: Notice[] = readAlerts(alertRows).map((a, i) => ({
     id: `${a.kind}-${a.productId}-${i}`,
     title: `${ALERT_LABEL[a.kind]}: ${a.productName}`,
     text:
@@ -59,6 +73,7 @@ export default async function MotelLayout({
     href: `${base}/estoque`,
     tone: a.kind === "negativo" || a.kind === "vencido" ? "bad" : "warn",
   }));
+  const notices = [...taskNotices, ...stockNotices];
 
   return (
     <AppShell

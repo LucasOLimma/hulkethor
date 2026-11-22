@@ -128,6 +128,25 @@ O botão **Sair** fica no painel.
 - Toda movimentação passa por funções do banco (transação única, perfil conferido, chave anti-duplicidade).
   Nada é apagado: correções são estornos. Cada ação vai para `audit_logs`.
 
+## Limpeza, kits e conta da hospedagem (Fase 1B)
+
+- Requer `supabase/05_operacao.sql` rodado no Supabase. Sem ele, o resto do site funciona como antes e a Limpeza
+  pede para ativar.
+- **Limpeza** (`/painel/[id]/limpeza`, toda a equipe, pensada para o celular):
+  - "Registrar saída" na reserva cria a tarefa sozinha; a recepção também pode pedir a limpeza de qualquer suíte.
+  - A camareira inicia a limpeza, informa o consumo do frigobar e confirma a reposição do kit padrão.
+  - Ela escolhe o estado da suíte (Tudo OK, Com observações ou Problema) e libera a suíte.
+  - "Problema" deixa a suíte bloqueada até a recepção ou o dono resolver.
+- **Dashboard:** a situação das suítes mostra também "Em limpeza" e "Com problema". O sininho avisa as suítes
+  aguardando limpeza.
+- **Suítes → Categorias e kit padrão** (só o dono): cada suíte tem uma categoria; cada categoria tem o kit reposto
+  a cada limpeza.
+- **Reservas → Conta da hospedagem** (reservas em andamento ou concluídas):
+  - mostra a hospedagem e os consumos;
+  - a recepção lança itens do frigobar, com baixa no estoque, ou outros itens com preço;
+  - o consumo informado pela camareira entra sozinho;
+  - o dono pode estornar, e o item volta ao estoque.
+
 ## Visualizador 3D (suíte demonstrativa realista)
 
 - **Página:** `/demo/suite-3d` (pública). `?qualidade=rapida` força o modo leve.

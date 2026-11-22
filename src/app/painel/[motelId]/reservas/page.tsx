@@ -5,6 +5,7 @@ import { addDays, todayIn } from "@/lib/dashboard-data";
 import { readPrices } from "@/lib/periods";
 import { PageHeader } from "@/components/app/page-header";
 import { NewReservation, ReservationItem, type SuiteOption, type ReservationView } from "./reservation-forms";
+import { ReservationBill, type ChargeView, type SaleItem } from "./bill";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,45 @@ export default async function ReservasPage({
     suiteNumber: suiteNumber.get(r.suite_id as string) ?? "—",
   }));
 
+  // conta da hospedagem (05_operacao.sql): reservas em andamento ou concluidas.
+  // Sem o arquivo rodado, as reservas aparecem como antes (sem conta).
+  const billIds = list.filter((r) => r.status === "chegou" || r.status === "concluida").map((r) => r.id);
+  const [chargesR, saleR] = billIds.length
+    ? await Promise.all([
+        ctx.supabase
+          .from("reservation_charges")
+          .select("id, reservation_id, description, qty, unit_price_cents, total_cents, source, reverses_id, created_at")
+          .eq("motel_id", ctx.motel.id)
+          .in("reservation_id", billIds)
+          .order("created_at"),
+        ctx.supabase
+          .from("products")
+          .select("id, name, kind, active, sale_price_cents")
+          .eq("motel_id", ctx.motel.id)
+          .eq("active", true)
+          .order("name"),
+      ])
+    : [null, null];
+  const billsOn = Boolean(chargesR && !chargesR.error);
+  const reversedIds = new Set((chargesR?.data ?? []).map((c) => c.reverses_id as string | null).filter(Boolean));
+  const chargesBy = new Map<string, ChargeView[]>();
+  for (const c of chargesR?.data ?? []) {
+    const arr = chargesBy.get(c.reservation_id as string) ?? [];
+    arr.push({
+      id: c.id as string,
+      description: c.description as string,
+      qty: Number(c.qty),
+      unitPriceCents: c.unit_price_cents as number,
+      totalCents: c.total_cents as number,
+      source: c.source as ChargeView["source"],
+      reversed: reversedIds.has(c.id as string),
+    });
+    chargesBy.set(c.reservation_id as string, arr);
+  }
+  const saleItems: SaleItem[] = (saleR?.data ?? [])
+    .filter((p) => p.kind === "consumo" && p.sale_price_cents != null)
+    .map((p) => ({ id: p.id as string, name: p.name as string, priceCents: p.sale_price_cents as number }));
+
   return (
     <>
       <PageHeader title="Reservas" subtitle="Crie, acompanhe e atualize as reservas deste estabelecimento." />
@@ -120,7 +160,27 @@ export default async function ReservasPage({
             </p>
             <ul className="res-list">
               {list.map((r) => (
-                <ReservationItem key={r.id} motelId={ctx.motel.id} r={r} suites={suites} today={today} maxDate={addDays(today, 365)} />
+                <ReservationItem
+                  key={r.id}
+                  motelId={ctx.motel.id}
+                  r={r}
+                  suites={suites}
+                  today={today}
+                  maxDate={addDays(today, 365)}
+                  bill={
+                    billsOn && (r.status === "chegou" || r.status === "concluida") ? (
+                      <ReservationBill
+                        motelId={ctx.motel.id}
+                        reservationId={r.id}
+                        stayCents={r.totalCents}
+                        charges={chargesBy.get(r.id) ?? []}
+                        saleItems={saleItems}
+                        isOwner={ctx.isOwner}
+                        canAdd
+                      />
+                    ) : undefined
+                  }
+                />
               ))}
             </ul>
           </>
