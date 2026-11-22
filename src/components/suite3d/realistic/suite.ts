@@ -269,14 +269,14 @@ export async function buildRealisticSuite(opts: {
   walls.front.add(mesh(new THREE.PlaneGeometry(1.43, 0.81), M.tvScreen, [bedX, 1.42, D / 2 - 0.079], [0, Math.PI, 0]));
 
   // ================= HIDROMASSAGEM =================
-  const deckX0 = 1.45; // borda do deque
+  const deckX0 = 1.15; // borda do deque
   const deckW = W / 2 - deckX0;
   const deckD = 2.5;
   const deckH = 0.52;
   const tubX = deckX0 + deckW / 2;
   const tubZ = -D / 2 + deckD / 2;
-  const tubW = 1.75;
-  const tubDp = 1.3;
+  const tubW = 1.6;
+  const tubDp = 1.2;
   // revestimento de marmore nas paredes da area molhada
   const bw = wallPlane(deckW + 0.02, H, M.marble, 2.4);
   bw.position.set(tubX, H / 2, -D / 2 + 0.006);
@@ -331,7 +331,8 @@ export async function buildRealisticSuite(opts: {
   root.add(tubGroup);
   // toalhas enroladas e velas no deque
   for (let i = 0; i < 3; i++) {
-    const towel = mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.34, 32), M.linen, [deckX0 + 0.16, deckH + 0.075 + (i === 2 ? 0.13 : 0), tubZ + deckD / 2 - 0.25 - (i % 2) * 0.16 - (i === 2 ? 0.08 : 0)], [0, 0, Math.PI / 2]);
+    // toalhas enroladas empilhadas no canto do deque (fora da banheira)
+    const towel = mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.32, 32), M.linen, [deckX0 + 0.2 + (i === 2 ? 0.0 : 0), deckH + 0.07 + (i === 2 ? 0.125 : 0), tubZ + deckD / 2 - 0.3 - (i === 1 ? 0.15 : 0) - (i === 2 ? 0.075 : 0)], [Math.PI / 2, 0, 0]);
     root.add(towel);
   }
   const candles: THREE.PointLight[] = [];
@@ -469,11 +470,10 @@ export async function buildRealisticSuite(opts: {
     placeModel("Ottoman_01", { x: bedX, z: bedZ + bedLen / 2 + 0.55, fitWidth: 1.1 }),
     placeModel("modern_wooden_cabinet", { x: bedX, z: D / 2 - 0.3, rotY: Math.PI, fitWidth: 2.2 }),
     placeModel("ceramic_vase_01", { x: bedX + 0.75, z: D / 2 - 0.3, y: 0.58, scale: 0.9 }),
-    placeModel("modern_arm_chair_01", { x: 2.35, z: 0.55, rotY: 0 }),
-    placeModel("modern_arm_chair_01", { x: 2.35, z: 2.35, rotY: Math.PI }),
+    placeModel("modern_arm_chair_01", { x: 2.35, z: 0.5, rotY: -Math.PI / 2 }), // de frente para a mesa
+    placeModel("modern_arm_chair_01", { x: 2.35, z: 2.4, rotY: Math.PI / 2 }),
     placeModel("coffee_table_round_01", { x: 2.35, z: 1.45, fitWidth: 0.8 }),
     placeModel("potted_plant_02", { x: -W / 2 + 0.45, z: D / 2 - 0.5 }),
-    placeModel("potted_plant_02", { x: deckX0 - 0.35, z: -D / 2 + 0.4, scale: 0.85 }),
   ]).then(() => undefined);
 
   shadow(bed);

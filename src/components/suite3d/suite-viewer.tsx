@@ -248,7 +248,7 @@ export function SuiteViewer({
               onClick={() => engineRef.current?.setPhotoMode(!photo?.enabled)}
               title="Calcula a luz como numa fotografia quando a câmera para"
             >
-              <span className={styles.modeIcon} aria-hidden="true">◐</span>
+              <svg className={styles.modeIcon} viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2" /><circle cx="12" cy="13" r="3.5" /><path d="M8 6l1.5-2h5L16 6" /></svg>
               Modo fotográfico
             </button>
             <button
@@ -261,7 +261,7 @@ export function SuiteViewer({
                 engineRef.current?.setWalking(!walking);
               }}
             >
-              <span className={styles.modeIcon} aria-hidden="true">⌖</span>
+              <svg className={styles.modeIcon} viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="13" cy="4.5" r="2" /><path d="M10 21l2-6-2.5-2.5L11 8l3 2 3 1M9.5 12.5 7 14M12 15l3 2 1 4" /></svg>
               {walking ? "Sair da exploração" : "Explorar em 1ª pessoa"}
             </button>
             {photo?.enabled && (
