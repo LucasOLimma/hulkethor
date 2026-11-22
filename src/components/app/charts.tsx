@@ -44,13 +44,16 @@ export function TimeChart({
   const format = FORMATS[valueType].value;
   const axisFormat = FORMATS[valueType].axis;
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(640);
+  // null ate medir o espaco: o grafico so e desenhado no navegador (evita
+  // diferenca de formatacao de numeros entre servidor e navegador)
+  const [measured, setMeasured] = useState<number | null>(null);
+  const width = measured ?? 640;
   const [hover, setHover] = useState<number | null>(null);
 
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setWidth(Math.max(260, entry.contentRect.width)));
+    const ro = new ResizeObserver(([entry]) => setMeasured(Math.max(260, entry.contentRect.width)));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -90,6 +93,9 @@ export function TimeChart({
         onTouchStart={(e) => onMove(e.touches[0].clientX)}
         onTouchMove={(e) => onMove(e.touches[0].clientX)}
       >
+        {measured === null ? (
+          <div style={{ height: H }} aria-hidden="true" />
+        ) : (
         <svg width={width} height={H} role="img" aria-label={title}>
           {ticks.map((t) => (
             <g key={t}>
@@ -134,8 +140,9 @@ export function TimeChart({
           )}
           <line x1={PAD.left} x2={width - PAD.right} y1={y(0)} y2={y(0)} className="chart-baseline" />
         </svg>
+        )}
 
-        {allZero && <p className="chart-empty">{emptyText}</p>}
+        {allZero && measured !== null && <p className="chart-empty">{emptyText}</p>}
 
         {h && hover !== null && (
           <div
@@ -148,6 +155,7 @@ export function TimeChart({
         )}
       </div>
 
+      {measured !== null && (
       <details className="chart-table">
         <summary>Ver dados em tabela</summary>
         <table>
@@ -167,6 +175,7 @@ export function TimeChart({
           </tbody>
         </table>
       </details>
+      )}
     </div>
   );
 }

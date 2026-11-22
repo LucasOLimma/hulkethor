@@ -1130,7 +1130,7 @@ button.secondary:disabled { opacity: 0.6; cursor: wait; }
   border: 1px solid var(--border);
   background: #120e0c;
 }
-.dash-hero-img { object-fit: cover; object-position: 60% 55%; }
+.dash-hero-img { object-fit: cover; object-position: 92% 60%; }
 .dash-hero-shade {
   position: absolute;
   inset: 0;
