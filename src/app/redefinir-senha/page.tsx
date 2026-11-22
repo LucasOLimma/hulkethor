@@ -14,7 +14,7 @@ export default function ResetPasswordPage() {
     <AuthShell title="Criar nova senha" subtitle="Use pelo menos 8 caracteres.">
       <form action={action} className="auth-form">
         {state?.error && <Alert kind="error">{state.error}</Alert>}
-        <PasswordField id="password" label="Nova senha" autoComplete="new-password" minLength={8} />
+        <PasswordField id="password" label="Nova senha" placeholder="Nova senha" autoComplete="new-password" minLength={8} />
         <PasswordField
           id="confirm"
           label="Repita a nova senha"

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { startTransition, useActionState } from "react";
 import { signIn } from "@/app/auth-actions";
+import { EnterIcon } from "@/components/auth-shell";
 import { Alert, EmailField, PasswordField, SubmitButton } from "@/components/fields";
 
 export function LoginForm() {
@@ -20,19 +21,13 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="auth-form">
       {state?.error && <Alert kind="error">{state.error}</Alert>}
       <EmailField />
-      <PasswordField
-        id="password"
-        label="Senha"
-        autoComplete="current-password"
-        aside={
-          <Link href="/esqueci-senha" className="small-link">
-            Esqueci minha senha
-          </Link>
-        }
-      />
+      <PasswordField id="password" label="Senha" placeholder="Sua senha" autoComplete="current-password" />
       <SubmitButton pending={pending} pendingText="Entrando...">
-        Entrar
+        <EnterIcon /> Entrar
       </SubmitButton>
+      <p className="auth-links">
+        <Link href="/esqueci-senha">Esqueceu sua senha?</Link>
+      </p>
     </form>
   );
 }

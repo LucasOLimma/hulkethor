@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Painel do Motel",
+  title: BRAND.name,
   description: "Acesso da equipe do motel",
   robots: { index: false, follow: false },
 };

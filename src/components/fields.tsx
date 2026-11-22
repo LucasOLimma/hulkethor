@@ -7,7 +7,7 @@ import { AlertIcon, CheckIcon, LockIcon, MailIcon } from "./auth-shell";
 export function EmailField() {
   return (
     <div className="field">
-      <label htmlFor="email">E-mail</label>
+      <label htmlFor="email" className="sr-only">E-mail</label>
       <div className="input-wrap">
         <span className="input-icon">
           <MailIcon />
@@ -17,7 +17,7 @@ export function EmailField() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="voce@exemplo.com"
+          placeholder="Seu e-mail"
           required
           maxLength={200}
         />
@@ -32,21 +32,20 @@ export function PasswordField({
   label,
   autoComplete,
   minLength,
-  aside,
+  placeholder,
 }: {
   id: string;
   label: string;
   autoComplete: "current-password" | "new-password";
   minLength?: number;
-  aside?: React.ReactNode;
+  placeholder?: string;
 }) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="field">
-      <div className="label-row">
-        <label htmlFor={id}>{label}</label>
-        {aside}
-      </div>
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
       <div className="input-wrap">
         <span className="input-icon">
           <LockIcon />
@@ -56,7 +55,7 @@ export function PasswordField({
           name={id}
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
-          placeholder="••••••••"
+          placeholder={placeholder ?? label}
           required
           minLength={minLength}
           maxLength={200}

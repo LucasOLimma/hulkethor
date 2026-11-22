@@ -9,11 +9,17 @@ export default async function LoginPage({
 }) {
   const { erro } = await searchParams;
   return (
-    <AuthShell title="Bem-vindo" subtitle="Entre com seu e-mail e senha para acessar o painel.">
+    <AuthShell
+      title={
+        <>
+          Faça seu login e viva uma <em>noite inesquecível</em>
+        </>
+      }
+    >
       {erro === "link" && <Alert kind="error">O link é inválido ou expirou. Peça um novo.</Alert>}
       <LoginForm />
       <p className="auth-note">
-        Acesso exclusivo por convite. Fale com o responsável pelo seu motel.
+        Acesso exclusivo para a equipe do motel, por convite.
       </p>
     </AuthShell>
   );
