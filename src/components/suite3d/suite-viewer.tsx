@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { SuiteViewerEngine } from "./engine";
+import type { PhotoState, SuiteViewerEngine } from "./engine";
 import type { CameraPreset, HotspotDef, LightSceneId, SuiteInfo } from "./types";
 import styles from "./suite-viewer.module.css";
 
 const LIGHT_SCENES: { id: LightSceneId; label: string; dot: string }[] = [
   { id: "aconchegante", label: "Aconchegante", dot: "#ffa45c" },
-  { id: "romantico", label: "Romântico", dot: "#ff2a6d" },
+  { id: "romantico", label: "Romântico", dot: "#e0707a" },
   { id: "claro", label: "Claro", dot: "#fff0dc" },
 ];
 
@@ -37,6 +37,9 @@ export function SuiteViewer({
   const [hint, setHint] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
   const [canFullscreen, setCanFullscreen] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [photo, setPhoto] = useState<PhotoState | null>(null);
+  const [walking, setWalking] = useState(false);
 
   // Carrega o motor 3D so no navegador (nao pesa nas outras paginas).
   useEffect(() => {
@@ -50,19 +53,32 @@ export function SuiteViewer({
           setStatus("unsupported");
           return;
         }
+        // "?qualidade=rapida" forca o modo leve (aparelhos mais fracos/testes)
+        const forceFast = new URLSearchParams(window.location.search).get("qualidade") === "rapida";
         const lowEnd =
-          window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
-        engine = new SuiteViewerEngine(canvasRef.current, {
+          forceFast || window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
+        const created = new SuiteViewerEngine(canvasRef.current, {
           quality: lowEnd ? "low" : "high",
+          // celular: comeca na renderizacao rapida (o modo foto pode ser ligado)
+          photoMode: !lowEnd,
+          onStatus: (st) => {
+            if (st.kind === "loading") setProgress(st.progress);
+            else if (st.kind === "error") setStatus("error");
+            else if (st.kind === "ready" && created.suite) {
+              setHotspots(created.suite.hotspots);
+              setPresets(created.suite.presets);
+              setStatus("ready");
+            }
+          },
           onUserInteract: () => {
             setHint(false);
             setPreset("");
           },
+          onPhoto: setPhoto,
+          onWalkChange: setWalking,
         });
-        engineRef.current = engine;
-        setHotspots(engine.suite.hotspots);
-        setPresets(engine.suite.presets);
-        setStatus("ready");
+        engine = created;
+        engineRef.current = created;
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -87,7 +103,7 @@ export function SuiteViewer({
     setPreset(id);
     setActiveHotspot(null);
     setHint(false);
-    engineRef.current?.flyTo(id);
+    engineRef.current?.goToPreset(id);
   };
 
   const openHotspot = (id: string) => {
@@ -141,7 +157,10 @@ export function SuiteViewer({
       {status === "loading" && (
         <div className={styles.overlay}>
           <span className={styles.spinner} aria-hidden="true" />
-          <p>Preparando a suíte em 3D…</p>
+          <p>Carregando a suíte… {Math.round(progress * 100)}%</p>
+          <div className={styles.progress} aria-hidden="true">
+            <span style={{ width: `${Math.round(progress * 100)}%` }} />
+          </div>
         </div>
       )}
       {(status === "unsupported" || status === "error") && (
@@ -221,6 +240,45 @@ export function SuiteViewer({
             ))}
           </div>
 
+          {/* modos: fotografico e exploracao em 1a pessoa */}
+          <div className={styles.modes}>
+            <button
+              type="button"
+              aria-pressed={Boolean(photo?.enabled)}
+              onClick={() => engineRef.current?.setPhotoMode(!photo?.enabled)}
+              title="Calcula a luz como numa fotografia quando a câmera para"
+            >
+              <span className={styles.modeIcon} aria-hidden="true">◐</span>
+              Modo fotográfico
+            </button>
+            <button
+              type="button"
+              aria-pressed={walking}
+              onClick={() => {
+                setHint(!walking); // ao entrar, mostra como andar
+                setActiveHotspot(null);
+                setPreset("");
+                engineRef.current?.setWalking(!walking);
+              }}
+            >
+              <span className={styles.modeIcon} aria-hidden="true">⌖</span>
+              {walking ? "Sair da exploração" : "Explorar em 1ª pessoa"}
+            </button>
+            {photo?.enabled && (
+              <p className={styles.photoStatus} role="status">
+                {photo.preparing
+                  ? "Preparando modo fotográfico…"
+                  : !photo.available
+                    ? "Fotográfico disponível dentro da suíte"
+                    : photo.samples >= photo.target
+                      ? "Imagem final"
+                      : photo.samples > 0
+                        ? `Refinando imagem… ${Math.min(99, Math.round((photo.samples / photo.target) * 100))}%`
+                        : "Pare a câmera para refinar"}
+              </p>
+            )}
+          </div>
+
           {/* zoom */}
           <div className={styles.zoom}>
             <button type="button" aria-label="Aproximar" onClick={() => engineRef.current?.zoomBy(0.7)}>+</button>
@@ -238,7 +296,9 @@ export function SuiteViewer({
 
           {hint && (
             <p className={styles.hint}>
-              Arraste para girar · Role ou use dois dedos para aproximar · Toque nos pontos dourados
+              {walking
+                ? "Arraste para olhar ao redor · Toque no chão para andar · W A S D no teclado"
+                : "Arraste para girar · Role ou use dois dedos para aproximar · Toque nos pontos dourados"}
             </p>
           )}
 

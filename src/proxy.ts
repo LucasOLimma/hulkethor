@@ -61,5 +61,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Roda em todas as paginas, menos arquivos estaticos e imagens.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|suite3d/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

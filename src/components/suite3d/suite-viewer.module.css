@@ -112,6 +112,48 @@
 .scenes button[aria-pressed="true"] { background: var(--gold-soft); color: var(--ink); }
 .sceneDot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; flex: none; }
 
+/* ---------- modos (fotografico / exploracao) ---------- */
+.modes {
+  position: absolute;
+  left: 20px;
+  top: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.modes button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+.modes button[aria-pressed="true"] { color: #1d1206; background: var(--gold); border-color: var(--gold); }
+.modeIcon { font-size: 0.95rem; line-height: 1; }
+.photoStatus {
+  margin: 2px 0 0 4px;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.progress {
+  width: min(260px, 70vw);
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(214, 170, 92, 0.2);
+  overflow: hidden;
+}
+.progress span { display: block; height: 100%; background: var(--gold); transition: width 0.25s ease; }
+
 /* ---------- zoom ---------- */
 .zoom {
   position: absolute;
@@ -349,7 +391,10 @@
     padding: 4px;
   }
   .scenes button { padding: 6px 10px; font-size: 0.78rem; border-radius: 999px; }
-  .zoom { left: auto; right: 16px; top: 136px; transform: none; }
+  .modes { top: 122px; left: 16px; right: 16px; flex-direction: row; flex-wrap: wrap; }
+  .modes button { padding: 6px 11px; font-size: 0.76rem; }
+  .photoStatus { flex-basis: 100%; }
+  .zoom { left: auto; right: 16px; top: 196px; transform: none; }
   .zoom button { width: 38px; height: 38px; }
   .hint { top: auto; bottom: 150px; left: 50%; white-space: normal; text-align: center; width: calc(100% - 48px); border-radius: 14px; }
 

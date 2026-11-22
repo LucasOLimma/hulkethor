@@ -73,13 +73,22 @@ Fluxo: **login → Meus estabelecimentos (`/painel`) → painel do motel (`/pain
 
 O botão **Sair** fica no painel.
 
-## Visualizador 3D
+## Visualizador 3D (suíte demonstrativa realista)
 
-- Feito com **Three.js** (WebGL), sem outras bibliotecas 3D. O código 3D só é baixado na página do visualizador.
-- `src/components/suite3d/demo-suite.ts`: a suíte demonstrativa, construída em código (medidas em metros).
-- `src/components/suite3d/engine.ts`: câmera, controles (mouse e toque), luzes, qualidade automática no celular.
-- `src/components/suite3d/suite-viewer.tsx`: a interface (painel de informações, ângulos, climas, fotos).
-- Próximas etapas: modelos `.glb` enviados por cada motel, fotos reais e página pública por motel.
+- **Página:** `/demo/suite-3d` (pública). `?qualidade=rapida` força o modo leve.
+- **Tecnologia:** Three.js (WebGL 2) + `three-gpu-pathtracer` (path tracing) + `three-mesh-bvh`.
+  - Renderização rápida enquanto a câmera se move; **modo fotográfico** (path tracing com iluminação
+    global, sombras suaves, reflexos reais e redução de ruído) quando a câmera para **dentro** da suíte.
+  - Computador: modo fotográfico ligado por padrão. Celular: desligado por padrão (pode ser ligado).
+- **Conteúdo:** modelos, texturas PBR e HDRI da Poly Haven (CC0, domínio público) em `public/suite3d`
+  (ver `public/suite3d/CREDITOS.txt`), convertidos para WebP (~11 MB no total, carregados só nesta página).
+  Cama, roupa de cama, cabeceira capitonê, cortinas e banheira são geometrias orgânicas feitas em código
+  (`src/components/suite3d/realistic/geometry.ts`) em medidas reais.
+- **Navegação:** órbita 360°, zoom, ângulos prontos (inclui **vista de cima**), pontos de interesse,
+  climas de luz e **exploração em 1ª pessoa** (arrastar para olhar, tocar no chão para andar, W A S D).
+- **Para chegar ao realismo de fotografia de um motel real:** substituir esta suíte por modelos `.glb`
+  produzidos no Blender a partir do projeto/fotos do motel (o motor já carrega GLTF), ou usar o tour 360°
+  com fotos reais (`src/components/suite3d/tour-engine.ts`).
 
 ## Suítes (etapa 3)
 
