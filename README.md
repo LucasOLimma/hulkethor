@@ -31,6 +31,20 @@ O banco já foi criado com [`supabase/01_base_multi_motel.sql`](supabase/01_base
    ```
    Depois abra http://localhost:3000.
 
+## Publicar na internet (Vercel)
+
+1. Em https://vercel.com, entre com a conta do GitHub e clique em **Add New → Project**.
+2. Importe o repositório `hulkethor` (Framework: Next.js — detectado sozinho).
+3. Em **Environment Variables**, cadastre:
+   - `NEXT_PUBLIC_SUPABASE_URL` — URL do projeto Supabase
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — chave **publishable/anon**
+   - `SUPABASE_SECRET_KEY` — chave secreta (**só servidor**; sem `NEXT_PUBLIC_`)
+   - `NEXT_PUBLIC_SITE_URL` — o endereço final (ex.: `https://hulkethor.vercel.app`)
+4. **Deploy**. A Vercel publica a branch de produção (por padrão, `main`).
+5. No Supabase, **Authentication → URL Configuration**: troque o **Site URL** pelo endereço final e
+   adicione em **Redirect URLs** `https://SEU-ENDERECO/auth/confirm` e `https://SEU-ENDERECO/auth/convite`
+   (pode manter os de `localhost` para continuar testando no computador).
+
 ## Foto do login
 
 A tela de login usa uma **fotografia real** em `public/login/suite.jpg` (horizontal, ~2400 px de

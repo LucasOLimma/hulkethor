@@ -37,5 +37,9 @@ export function getSupabaseEnv(): { url: string; publishableKey: string } {
 
 // Endereco do site, usado no link do e-mail de recuperacao de senha.
 export function getSiteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  // Ordem: o endereco configurado; na Vercel, o endereco de producao do
+  // projeto (preenchido pela propria Vercel); no computador, localhost.
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const url = process.env.NEXT_PUBLIC_SITE_URL || (vercel ? `https://${vercel}` : "http://localhost:3000");
+  return url.replace(/\/+$/, "");
 }
