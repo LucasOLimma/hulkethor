@@ -95,3 +95,10 @@ O fim mostra como desfazer.
   últimos 30 dias, por suíte e do motel). Para toda a equipe, **sem nenhum dado de hóspede**.
 - Liga o **tempo real** do Supabase (Realtime) nas tabelas de limpeza e reservas. O Realtime respeita o RLS: cada
   pessoa só recebe o que já podia ver.
+
+## 09_fotos_correcao.sql (precisa do 07)
+
+Correção do envio de fotos: o Storage do Supabase lê de volta o arquivo recém-enviado e, sem uma regra de
+**leitura** na pasta `suite-photos`, o envio era recusado. Cria essa regra só para a equipe do motel dono da pasta
+(enviar e apagar continuam só com o dono). Não altera dados; pode rodar de novo. Quem instalar do zero já recebe
+essa regra no 07.
