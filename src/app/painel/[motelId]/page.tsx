@@ -280,8 +280,8 @@ export default async function DashboardPage({
       <section className="content-card">
         <div className="card-head">
           <h2 className="card-title">Situação das suítes agora</h2>
-          <Link href={`${base}/suites`} className="card-link">
-            Gerenciar →
+          <Link href={`${base}/mapa`} className="card-link">
+            Mapa ao vivo →
           </Link>
         </div>
         {d.suiteStatus.length === 0 ? (

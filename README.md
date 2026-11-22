@@ -180,6 +180,23 @@ O botão **Sair** fica no painel.
   - **Reservas:** celular do cliente visível para o dono e a recepção, e campo opcional na reserva feita pela
     equipe.
 
+## Mapa ao vivo e previsão
+
+- `/painel/[id]/mapa` (toda a equipe). Requer `supabase/08_mapa_ao_vivo.sql`.
+- **Cores:**
+  - 🔵 ocupada, com a saída prevista;
+  - 🟡 em limpeza, com cronômetro e barra ("12 de ~30 min"; fica vermelho quando passa da média);
+  - 🟢 pronta (mostra "reservada às 20:00" se houver reserva no dia);
+  - 🔴 com problema;
+  - cinza: desativada.
+- **Previsão** (dono e recepção): quantas suítes estão prontas agora ou, se nenhuma, qual fica pronta primeiro e
+  em quanto tempo, além das 3 próximas.
+  - O cálculo usa o **tempo médio real de limpeza** de cada suíte nos últimos 30 dias: com 2 ou mais limpezas,
+    a média da suíte; com menos, a média do motel; sem histórico, 30 min, e a tela avisa.
+- **Atualização:** recebe as mudanças em tempo real (Supabase Realtime) e, por segurança, também se atualiza a
+  cada 20 s e ao voltar para a aba.
+- **Privacidade:** sem nome, código ou valor do hóspede, sem câmeras e sem sensores.
+
 ## Visualizador 3D (suíte demonstrativa realista)
 
 - **Página:** `/demo/suite-3d` (pública). `?qualidade=rapida` força o modo leve.

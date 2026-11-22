@@ -274,7 +274,8 @@ export type IconName =
   | "users"
   | "estoque"
   | "limpeza"
-  | "turnos";
+  | "turnos"
+  | "mapa";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   dashboard: <><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 9.5V20h13V9.5" /><path d="M10 20v-5h4v5" /></>,
@@ -298,6 +299,7 @@ const PATHS: Record<IconName, React.ReactNode> = {
   estoque: <><path d="M3 8.5 12 4l9 4.5v8L12 21l-9-4.5v-8Z" /><path d="M3 8.5 12 13l9-4.5M12 13v8M7.5 6.3l9 4.5" /></>,
   limpeza: <><path d="M15 3 9.5 11.5" /><path d="M7 11.5h6.5l2 3.5c.8 1.5.3 3.4-1.1 4.3L12 21H5.5L4 17.5c-.7-1.6-.2-3.5 1.2-4.5L7 11.5Z" /><path d="M8 21l1-4M11.5 21l.5-3" /></>,
   turnos: <><circle cx="12" cy="7.5" r="3.5" /><path d="M5 20c.8-3.8 3.6-6 7-6 1.3 0 2.5.3 3.5.9" /><path d="m15 18 2 2 4-4.5" /></>,
+  mapa: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><circle cx="17.5" cy="17.5" r="3.5" /><path d="M17.5 16v1.5l1 1" /></>,
   percent: <><path d="M19 5 5 19" /><circle cx="7" cy="7" r="2.5" /><circle cx="17" cy="17" r="2.5" /></>,
 };
 

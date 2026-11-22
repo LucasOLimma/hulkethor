@@ -25,6 +25,7 @@ export default async function MotelLayout({
 
   const nav: NavItem[] = [
     { href: base, label: "Dashboard", icon: "dashboard", exact: true },
+    { href: `${base}/mapa`, label: "Mapa ao vivo", icon: "mapa" },
     { href: `${base}/suites`, label: "Suítes", icon: "suites" },
     ...(perm.reservations
       ? ([
