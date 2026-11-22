@@ -1,7 +1,7 @@
 "use client";
 
 import { startTransition, useActionState, useRef } from "react";
-import { changeRole, inviteMember, setActive, type TeamState } from "../actions";
+import { changeRole, inviteMember, setActive, type TeamState } from "@/app/painel/equipe/actions";
 
 type RoleOption = { value: string; label: string };
 

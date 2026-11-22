@@ -78,7 +78,7 @@ export async function inviteMember(_prev: TeamState, formData: FormData): Promis
     p_details: { user_id: invited.user.id, role },
   });
 
-  revalidatePath(`/painel/equipe/${motelId}`);
+  revalidatePath(`/painel/${motelId}`, "layout");
   return { success: `Convite enviado para ${email}.` };
 }
 
@@ -108,7 +108,7 @@ export async function changeRole(_prev: TeamState, formData: FormData): Promise<
     p_details: { user_id: userId, role },
   });
 
-  revalidatePath(`/painel/equipe/${motelId}`);
+  revalidatePath(`/painel/${motelId}`, "layout");
   return { success: "Perfil atualizado." };
 }
 
@@ -138,6 +138,6 @@ export async function setActive(_prev: TeamState, formData: FormData): Promise<T
     p_details: { user_id: userId },
   });
 
-  revalidatePath(`/painel/equipe/${motelId}`);
+  revalidatePath(`/painel/${motelId}`, "layout");
   return { success: active ? "Acesso reativado." : "Acesso desativado." };
 }

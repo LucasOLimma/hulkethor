@@ -8,7 +8,7 @@ import {
   PERIODS,
   type PricesCents,
 } from "@/lib/periods";
-import { deleteSuite, saveSuite, setSuiteActive, type SuiteState } from "../actions";
+import { deleteSuite, saveSuite, setSuiteActive, type SuiteState } from "@/app/painel/suites/actions";
 
 export type Suite = {
   id: string;

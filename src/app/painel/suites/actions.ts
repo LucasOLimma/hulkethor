@@ -81,7 +81,7 @@ export async function saveSuite(_prev: SuiteState, formData: FormData): Promise<
     number,
   });
 
-  revalidatePath(`/painel/suites/${motelId}`);
+  revalidatePath(`/painel/${motelId}`, "layout");
   return { success: suiteId ? "Suíte atualizada." : `Suíte ${number} criada.`, savedAt: Date.now() };
 }
 
@@ -107,7 +107,7 @@ export async function setSuiteActive(_prev: SuiteState, formData: FormData): Pro
     suite_id: suiteId,
   });
 
-  revalidatePath(`/painel/suites/${motelId}`);
+  revalidatePath(`/painel/${motelId}`, "layout");
   return { success: active ? "Suíte ativada." : "Suíte desativada." };
 }
 
@@ -140,6 +140,6 @@ export async function deleteSuite(_prev: SuiteState, formData: FormData): Promis
     number: data[0].number,
   });
 
-  revalidatePath(`/painel/suites/${motelId}`);
+  revalidatePath(`/painel/${motelId}`, "layout");
   return { success: "Suíte excluída." };
 }

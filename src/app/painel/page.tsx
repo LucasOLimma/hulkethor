@@ -1,90 +1,144 @@
 import Link from "next/link";
+import { motelInitials } from "@/lib/initials";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getMyMotels, getSessionUser, ROLE_LABEL } from "@/lib/motel-access";
 import { signOut } from "@/app/auth-actions";
+import { BRAND } from "@/lib/brand";
+import { BrandMark } from "@/components/app/app-shell";
 
-// Nao guardar esta pagina em cache: cada pessoa ve so os seus dados.
+// Nao guardar em cache: cada pessoa ve so os seus estabelecimentos.
 export const dynamic = "force-dynamic";
 
-// Valores aceitos pela coluna motel_members.role (ver supabase/01_base_multi_motel.sql)
-const ROLE_LABEL: Record<string, string> = {
-  dono: "Dono",
-  recepcao: "Recepção",
-  camareira: "Camareira",
-};
+// =====================================================================
+// MEUS ESTABELECIMENTOS — primeira tela depois do login.
+// Lista so os motéis em que a pessoa e membro ATIVO (consulta no banco +
+// RLS). Nao mostra faturamento/reservas: nenhum motel foi escolhido ainda.
+// =====================================================================
 
-type Vinculo = { motelId: string; motelName: string; role: string };
-
-export default async function PainelPage() {
-  const supabase = await createClient();
-
-  // getUser() confirma com o servidor do Supabase quem esta logado.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default async function MeusEstabelecimentos({
+  searchParams,
+}: {
+  searchParams: Promise<{ lista?: string }>;
+}) {
+  const { lista } = await searchParams;
+  const { supabase, user } = await getSessionUser();
   if (!user) redirect("/login");
 
-  // Busca os vinculos ATIVOS da pessoa logada, com o nome do motel.
-  // O banco (RLS) so devolve a propria linha e motels dos quais ela e membro.
-  const { data, error } = await supabase
-    .from("motel_members")
-    .select("motel_id, role, motels ( name )")
-    .eq("user_id", user.id)
-    .eq("active", true);
+  let motels: Awaited<ReturnType<typeof getMyMotels>> = [];
+  let loadError = false;
+  try {
+    motels = await getMyMotels();
+  } catch {
+    loadError = true;
+  }
 
-  const vinculos: Vinculo[] = (data ?? []).map((row) => {
-    const motel = Array.isArray(row.motels) ? row.motels[0] : row.motels;
-    return {
-      motelId: row.motel_id as string,
-      motelName: (motel as { name?: string } | null)?.name ?? "—",
-      role: row.role as string,
-    };
-  });
+  // Um estabelecimento so: vai direto ao painel dele. "?lista=1" mostra a
+  // lista mesmo assim (link "Meus estabelecimentos" no painel).
+  if (!loadError && motels.length === 1 && !lista) redirect(`/painel/${motels[0].id}`);
+
+  // Quantidade de suites por motel (RLS: so de motéis em que a pessoa e membro).
+  const counts = new Map<string, { total: number; active: number }>();
+  if (motels.length) {
+    const { data } = await supabase
+      .from("suites")
+      .select("motel_id, active")
+      .in(
+        "motel_id",
+        motels.map((m) => m.id),
+      );
+    for (const row of data ?? []) {
+      const c = counts.get(row.motel_id as string) ?? { total: 0, active: 0 };
+      c.total += 1;
+      if (row.active) c.active += 1;
+      counts.set(row.motel_id as string, c);
+    }
+  }
 
   return (
-    <main className="page">
-      <div className="card wide">
-        <div className="topbar">
-          <div>
-            <h1>Painel</h1>
-            <p className="subtitle">{user.email}</p>
-          </div>
+    <div className="select-page">
+      <header className="select-top">
+        <span className="select-brand">
+          <BrandMark size={30} />
+          <span>
+            {BRAND.first}
+            <em>{BRAND.second}</em>
+          </span>
+        </span>
+        <div className="select-user">
+          <span className="select-email">{user.email}</span>
           <form action={signOut}>
-            <button type="submit" className="secondary">
+            <button type="submit" className="btn-ghost">
               Sair
             </button>
           </form>
         </div>
+      </header>
 
-        {error ? (
+      <main className="select-main">
+        <p className="select-eyebrow">Área do proprietário</p>
+        <h1 className="select-title">Meus estabelecimentos</h1>
+        <p className="select-subtitle">Selecione o estabelecimento que deseja administrar.</p>
+
+        {loadError ? (
           <p className="alert error" role="alert">
-            Não foi possível carregar seus dados agora. Tente novamente.
+            Não foi possível carregar seus estabelecimentos agora. Recarregue a página.
           </p>
-        ) : vinculos.length === 0 ? (
-          <p className="alert error" role="alert">
-            Sua conta não está vinculada a nenhum motel. Fale com o responsável.
-          </p>
+        ) : motels.length === 0 ? (
+          <div className="select-empty">
+            <h2>Nenhum estabelecimento vinculado</h2>
+            <p>
+              Sua conta ainda não tem acesso a nenhum motel. Se você é proprietário, solicite o cadastro do seu
+              estabelecimento ao suporte da plataforma. Se faz parte de uma equipe, peça ao responsável pelo motel
+              que envie um convite para o seu e-mail.
+            </p>
+          </div>
         ) : (
-          <ul className="motel-list">
-            {vinculos.map((v) => (
-              <li key={v.motelId}>
-                <span className="motel-name">{v.motelName}</span>
-                <span className="member-actions">
-                  <span className="badge">{ROLE_LABEL[v.role] ?? v.role}</span>
-                  <Link href={`/painel/suites/${v.motelId}`} className="btn-link">
-                    Suítes →
-                  </Link>
-                  {v.role === "dono" && (
-                    <Link href={`/painel/equipe/${v.motelId}`} className="btn-link">
-                      Equipe →
+          <ul className="motel-cards">
+            {motels.map((m) => {
+              const c = counts.get(m.id) ?? { total: 0, active: 0 };
+              const operating = c.active > 0;
+              return (
+                <li key={m.id} className="motel-card">
+                  <div className="motel-cover" aria-hidden="true">
+                    <span className="motel-cover-initials">{motelInitials(m.name)}</span>
+                    <span className="motel-cover-note">Sem foto de capa</span>
+                  </div>
+                  <div className="motel-card-body">
+                    <div className="motel-card-head">
+                      <h2>{m.name}</h2>
+                      <span className="role-badge">{ROLE_LABEL[m.role]}</span>
+                    </div>
+                    <dl className="motel-facts">
+                      <div>
+                        <dt>Suítes</dt>
+                        <dd>
+                          {c.total}
+                          {c.total > 0 && <small> · {c.active} ativas</small>}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Situação</dt>
+                        <dd className={operating ? "status-ok" : "status-pending"}>
+                          <span className="status-dot" aria-hidden="true" />
+                          {operating ? "Em operação" : "Configuração pendente"}
+                        </dd>
+                      </div>
+                    </dl>
+                    <Link href={`/painel/${m.id}`} className="btn-gold">
+                      Acessar painel
                     </Link>
-                  )}
-                </span>
-              </li>
-            ))}
+                    <div className="motel-card-links">
+                      <Link href={`/painel/${m.id}/suites`}>Gerenciar suítes</Link>
+                      {m.role === "dono" && <Link href={`/painel/${m.id}/equipe`}>Gerenciar equipe</Link>}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
+

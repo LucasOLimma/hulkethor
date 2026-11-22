@@ -37,6 +37,26 @@ A tela de login usa uma **fotografia real** em `public/login/suite.jpg` (horizon
 largura, JPG). Para trocar, substitua o arquivo. Use uma foto do próprio motel ou com licença de uso
 comercial. Sem o arquivo, a tela mostra um fundo escuro neutro.
 
+## Área do proprietário (multi-motel)
+
+Fluxo: **login → Meus estabelecimentos (`/painel`) → painel do motel (`/painel/[id]`)**.
+
+- `/painel`: cards com os estabelecimentos em que a pessoa é membro ativo (nome, suítes, situação,
+  perfil). Sem números financeiros. Com um único estabelecimento vai direto ao painel;
+  `/painel?lista=1` sempre mostra a lista. Sem nenhum, mostra como solicitar acesso.
+- `/painel/[id]`: dashboard do motel (faturamento, reservas, clientes atendidos, suítes, ocupação,
+  gráficos, suítes em destaque, reservas recentes, situação das suítes) e as páginas do menu:
+  `suites`, `reservas`, `clientes`, `equipe`, `promocoes`, `relatorios`, `configuracoes`, `meu-motel`.
+- **Segurança:** o ID no endereço nunca é confiado sozinho. `src/lib/motel-access.ts` (`requireMotel`)
+  confere no banco, a cada requisição, se a pessoa é membro **ativo** daquele motel e com qual perfil;
+  todas as consultas filtram pelo motel conferido e o banco ainda aplica o RLS. Sem acesso → 404.
+- Perfis: recepção não vê Equipe/Promoções/Relatórios; camareira não vê reservas, faturamento e clientes
+  (mesma regra do banco).
+- Indicadores (nada inventado): faturamento = soma das reservas confirmadas, em andamento ou concluídas
+  do período; clientes atendidos = reservas com chegada registrada ou concluídas; ocupação = suítes
+  ocupadas agora ÷ suítes ativas. Clientes, Promoções e Relatórios aparecem como "Em desenvolvimento"
+  porque o banco ainda não tem esses dados.
+
 ## Telas
 
 | Endereço | O que faz |
@@ -46,7 +66,7 @@ comercial. Sem o arquivo, a tela mostra um fundo escuro neutro.
 | `/auth/confirm` | Destino do link do e-mail de recuperação. Valida o link e leva para `/redefinir-senha`. |
 | `/auth/convite` | Destino do link do e-mail de convite. Abre a sessão e leva para `/redefinir-senha`. |
 | `/redefinir-senha` | Criar a nova senha (só com sessão aberta). |
-| `/painel` | Página protegida: nome do motel e perfil, lidos de `motel_members` + `motels`. |
+| `/painel` | Meus estabelecimentos (seleção do motel). |
 | `/painel/suites/[id do motel]` | Suítes do motel. Toda a equipe vê; **só o dono** cria, edita, ativa/desativa e exclui. |
 | `/demo/suite-3d` | **Suíte demonstrativa em 3D** (pública, sem login): girar 360°, zoom, ângulos prontos, pontos de interesse, climas de luz. |
 | `/painel/equipe/[id do motel]` | **Só para o dono:** convidar pessoas, trocar perfil, desativar/reativar. |
