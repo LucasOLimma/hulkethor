@@ -17,7 +17,9 @@ export type Suite = {
   prices: PricesCents;
   items: string[];
   active: boolean;
+  categoryId?: string | null;
 };
+export type CategoryOption = { id: string; name: string };
 
 function Message({ state }: { state: SuiteState }) {
   if (state?.error)
@@ -49,10 +51,12 @@ function submitWith(action: (fd: FormData) => void, confirmText?: string) {
 function SuiteForm({
   motelId,
   suite,
+  categories,
   onDone,
 }: {
   motelId: string;
   suite?: Suite;
+  categories?: CategoryOption[];
   onDone?: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -118,6 +122,20 @@ function SuiteForm({
         </div>
       </fieldset>
 
+      {categories && (
+        <label className="field">
+          <span>Categoria (define o kit padrão da limpeza)</span>
+          <select name="categoryId" className="select" defaultValue={suite?.categoryId ?? ""}>
+            <option value="">Sem categoria</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <label className="field">
         <span>Itens (separe por vírgula)</span>
         <input
@@ -144,7 +162,7 @@ function SuiteForm({
 }
 
 // ---------- Caixa "Nova suite" (so o dono ve) ----------
-export function NewSuite({ motelId }: { motelId: string }) {
+export function NewSuite({ motelId, categories }: { motelId: string; categories?: CategoryOption[] }) {
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -162,7 +180,7 @@ export function NewSuite({ motelId }: { motelId: string }) {
           Fechar
         </button>
       </div>
-      <SuiteForm motelId={motelId} />
+      <SuiteForm motelId={motelId} categories={categories} />
     </section>
   );
 }
@@ -172,10 +190,12 @@ export function SuiteCard({
   motelId,
   suite,
   canEdit,
+  categories,
 }: {
   motelId: string;
   suite: Suite;
   canEdit: boolean;
+  categories?: CategoryOption[];
 }) {
   const [editing, setEditing] = useState(false);
   const [activeState, activeAction, activePending] = useActionState(setSuiteActive, undefined);
@@ -185,7 +205,7 @@ export function SuiteCard({
     return (
       <li className="suite editing">
         <h3 className="suite-title">Editando suíte {suite.number}</h3>
-        <SuiteForm motelId={motelId} suite={suite} onDone={() => setEditing(false)} />
+        <SuiteForm motelId={motelId} suite={suite} categories={categories} onDone={() => setEditing(false)} />
       </li>
     );
   }
@@ -197,7 +217,12 @@ export function SuiteCard({
       <div className="suite-head">
         <div>
           <h3 className="suite-title">Suíte {suite.number}</h3>
-          <p className="suite-type">{suite.type}</p>
+          <p className="suite-type">
+            {suite.type}
+            {categories && suite.categoryId && categories.find((c) => c.id === suite.categoryId)?.name !== suite.type
+              ? ` · categoria ${categories.find((c) => c.id === suite.categoryId)?.name ?? ""}`
+              : ""}
+          </p>
         </div>
         {!suite.active && <span className="badge muted">Desativada</span>}
       </div>

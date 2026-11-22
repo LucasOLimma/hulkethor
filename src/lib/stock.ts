@@ -97,7 +97,7 @@ export function readAlerts(rows: unknown): StockAlert[] {
 
 /** Tabela ainda nao existe no banco (o 04_estoque.sql nao foi rodado). */
 export function isMissingTable(e: { code?: string } | null | undefined): boolean {
-  return e?.code === "42P01" || e?.code === "PGRST205" || e?.code === "PGRST202" || e?.code === "42883";
+  return e?.code === "42P01" || e?.code === "PGRST205" || e?.code === "PGRST202" || e?.code === "42883" || e?.code === "42703";
 }
 
 /** Instante (ISO, UTC) em que comeca o dia `date` (AAAA-MM-DD) no fuso do motel. */

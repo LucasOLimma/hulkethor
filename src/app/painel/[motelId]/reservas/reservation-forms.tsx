@@ -219,12 +219,14 @@ export function ReservationItem({
   suites,
   today,
   maxDate,
+  bill,
 }: {
   motelId: string;
   r: ReservationView;
   suites: SuiteOption[];
   today: string;
   maxDate: string;
+  bill?: React.ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -279,6 +281,7 @@ export function ReservationItem({
         </div>
         <strong className="res-total">{formatCents(r.totalCents)}</strong>
       </div>
+      {bill}
 
       {(transitions.length > 0 || r.status === "confirmada") && (
         <div className="res-actions">

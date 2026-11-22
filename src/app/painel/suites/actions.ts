@@ -63,7 +63,13 @@ export async function saveSuite(_prev: SuiteState, formData: FormData): Promise<
   const owner = await requireOwner(motelId);
   if (!owner) return { error: MSG_SEM_PERMISSAO };
 
-  const row = { number, type, prices_cents: prices, items };
+  // categoria (so quando o formulario a mostra, ou seja, com o 05_operacao.sql rodado)
+  const row: Record<string, unknown> = { number, type, prices_cents: prices, items };
+  if (formData.has("categoryId")) {
+    const categoryId = text(formData, "categoryId");
+    if (categoryId && !isUuid(categoryId)) return { error: MSG_ERRO };
+    row.category_id = categoryId || null;
+  }
   const query = suiteId
     ? owner.supabase.from("suites").update(row).eq("id", suiteId).eq("motel_id", motelId).select("id")
     : owner.supabase.from("suites").insert({ ...row, motel_id: motelId }).select("id");

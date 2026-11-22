@@ -24,7 +24,7 @@ export type ReservationRow = {
 
 export type SuiteRow = { id: string; number: string; type: string; active: boolean; prices_cents: unknown; items: string[] | null };
 
-export type SuiteOpStatus = "livre" | "ocupada" | "reservada" | "desativada";
+export type SuiteOpStatus = "livre" | "ocupada" | "limpeza" | "problema" | "reservada" | "desativada";
 
 /** Reservas que contam como faturamento (exclui canceladas e nao comparecimentos). */
 export const VALID_STATUSES = ["confirmada", "chegou", "concluida"];
@@ -103,7 +103,13 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
     ? ctx.supabase.from("reservations").select(cols).eq("motel_id", motelId).order("created_at", { ascending: false }).limit(8)
     : null;
 
-  const [suitesR, periodR, nowR, recentR] = await Promise.all([suitesQ, periodQ, nowQ, recentQ]);
+  // limpezas em aberto (05_operacao.sql). Se o arquivo nao foi rodado, ignora.
+  const tasksQ = ctx.supabase
+    .from("housekeeping_tasks")
+    .select("suite_id, status")
+    .eq("motel_id", motelId)
+    .in("status", ["aguardando", "em_limpeza", "problema"]);
+  const [suitesR, periodR, nowR, recentR, tasksR] = await Promise.all([suitesQ, periodQ, nowQ, recentQ, tasksQ]);
   const error = Boolean(suitesR.error || periodR?.error || nowR?.error || recentR?.error);
 
   const suites = ((suitesR.data ?? []) as SuiteRow[]).sort((a, b) =>
@@ -154,13 +160,18 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
   const reservedToday = new Set(
     nowRows.filter((r) => r.status === "confirmada" && r.stay_date === today).map((r) => r.suite_id),
   );
+  const taskBySuite = new Map(((tasksR.data ?? []) as { suite_id: string; status: string }[]).map((t) => [t.suite_id, t.status]));
   const suiteStatus = suites.map((s) => ({
     ...s,
     status: (!s.active
       ? "desativada"
       : occupied.has(s.id)
         ? "ocupada"
-        : reservedToday.has(s.id)
+        : taskBySuite.get(s.id) === "problema"
+          ? "problema"
+          : taskBySuite.has(s.id)
+            ? "limpeza"
+            : reservedToday.has(s.id)
           ? "reservada"
           : "livre") as SuiteOpStatus,
   }));
