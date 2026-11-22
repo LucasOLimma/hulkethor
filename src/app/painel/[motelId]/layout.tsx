@@ -29,6 +29,7 @@ export default async function MotelLayout({
     ...(perm.reservations
       ? ([
           { href: `${base}/reservas`, label: "Reservas", icon: "reservas" },
+          { href: `${base}/turnos`, label: "Central de Turnos", icon: "turnos" },
           { href: `${base}/clientes`, label: "Clientes", icon: "clientes" },
         ] as NavItem[])
       : []),

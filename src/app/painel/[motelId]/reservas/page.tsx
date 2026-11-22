@@ -5,7 +5,7 @@ import { addDays, todayIn } from "@/lib/dashboard-data";
 import { readPrices } from "@/lib/periods";
 import { PageHeader } from "@/components/app/page-header";
 import { NewReservation, ReservationItem, type SuiteOption, type ReservationView } from "./reservation-forms";
-import { ReservationBill, type ChargeView, type SaleItem } from "./bill";
+import { ReservationBill, type ChargeView, type PaymentView, type SaleItem } from "./bill";
 
 export const dynamic = "force-dynamic";
 
@@ -87,7 +87,7 @@ export default async function ReservasPage({
   // conta da hospedagem (05_operacao.sql): reservas em andamento ou concluidas.
   // Sem o arquivo rodado, as reservas aparecem como antes (sem conta).
   const billIds = list.filter((r) => r.status === "chegou" || r.status === "concluida").map((r) => r.id);
-  const [chargesR, saleR] = billIds.length
+  const [chargesR, saleR, payR] = billIds.length
     ? await Promise.all([
         ctx.supabase
           .from("reservation_charges")
@@ -101,8 +101,23 @@ export default async function ReservasPage({
           .eq("motel_id", ctx.motel.id)
           .eq("active", true)
           .order("name"),
+        // pagamentos (06_turnos_caixa.sql); sem o arquivo, a saida funciona como antes
+        ctx.supabase
+          .from("payments")
+          .select("id, reservation_id, method, amount_cents, reverses_id, created_at")
+          .eq("motel_id", ctx.motel.id)
+          .in("reservation_id", billIds)
+          .order("created_at"),
       ])
-    : [null, null];
+    : [null, null, null];
+  const paymentsOn = Boolean(payR && !payR.error);
+  const reversedPay = new Set((payR?.data ?? []).map((p) => p.reverses_id as string | null).filter(Boolean));
+  const paymentsBy = new Map<string, PaymentView[]>();
+  for (const p of payR?.data ?? []) {
+    const arr = paymentsBy.get(p.reservation_id as string) ?? [];
+    arr.push({ id: p.id as string, method: p.method as string, amountCents: p.amount_cents as number, reversed: reversedPay.has(p.id as string) });
+    paymentsBy.set(p.reservation_id as string, arr);
+  }
   const billsOn = Boolean(chargesR && !chargesR.error);
   const reversedIds = new Set((chargesR?.data ?? []).map((c) => c.reverses_id as string | null).filter(Boolean));
   const chargesBy = new Map<string, ChargeView[]>();
@@ -167,6 +182,7 @@ export default async function ReservasPage({
                   suites={suites}
                   today={today}
                   maxDate={addDays(today, 365)}
+                  hideTransitionTo={billsOn && paymentsOn ? ["concluida"] : undefined}
                   bill={
                     billsOn && (r.status === "chegou" || r.status === "concluida") ? (
                       <ReservationBill
@@ -177,6 +193,8 @@ export default async function ReservasPage({
                         saleItems={saleItems}
                         isOwner={ctx.isOwner}
                         canAdd
+                        payments={paymentsOn ? (paymentsBy.get(r.id) ?? []) : null}
+                        payMode={r.status === "chegou" ? "checkout" : "receive"}
                       />
                     ) : undefined
                   }

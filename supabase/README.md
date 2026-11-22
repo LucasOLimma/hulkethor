@@ -55,3 +55,19 @@ O fim do arquivo mostra como desfazer.
 - Funções: `housekeeping_request` / `housekeeping_resolve` / `housekeeping_cancel` (dono e recepção),
   `housekeeping_start` / `housekeeping_finish` (toda a equipe), `reservation_charge_add` (dono e recepção) e
   `reservation_charge_reverse` (dono).
+
+## 06_turnos_caixa.sql (precisa do 01 ao 05 antes)
+
+Fase 1C: **Central de Turnos** e **caixa**. Só acrescenta; rode o arquivo inteiro de uma vez. O fim mostra como desfazer.
+- `shift_checklist_items`: lista de conferência da abertura (cria os 8 itens padrão em cada motel; o dono edita).
+- `shifts`: **um turno aberto por motel**. Abertura com a lista conferida e o fundo de caixa; fechamento com o
+  dinheiro contado, o esperado, a diferença e a passagem de plantão. Recepção vê o turno aberto e os próprios;
+  o histórico de todos (e as diferenças) é só do dono.
+- `payments`: pagamentos das reservas (dinheiro, Pix, crédito, débito), sempre no turno aberto; pode dividir.
+  Correção só por estorno (dono).
+- `cash_movements`: sangria e suprimento, com motivo.
+- **Regra no banco:** a reserva só vai para "concluída" (saída) com a conta paga. Consumo informado depois da saída
+  vira saldo a receber.
+- Funções: `shift_open`, `shift_close`, `shift_summary`, `shift_last_handover`, `cash_movement_add`,
+  `reservation_checkout` (saída + pagamento numa transação), `payment_register` (receber saldo) e
+  `payment_reverse` (dono).

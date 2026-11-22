@@ -147,6 +147,21 @@ O botão **Sair** fica no painel.
   - o consumo informado pela camareira entra sozinho;
   - o dono pode estornar, e o item volta ao estoque.
 
+## Central de Turnos e caixa (Fase 1C)
+
+- Requer `supabase/06_turnos_caixa.sql`. Sem ele, a saída da reserva funciona como antes.
+- **Central de Turnos** (`/painel/[id]/turnos`, dono e recepção):
+  - Números reais: suítes ocupadas, em limpeza e disponíveis; reservas de hoje e o previsto delas.
+  - **Abertura:** só depois de conferir todos os itens da lista e informar o fundo de caixa. Mostra a passagem de
+    plantão do turno anterior.
+  - **Turno atual:** quem abriu, o caixa (fundo + dinheiro recebido + suprimentos − sangrias = dinheiro
+    esperado), Pix e cartões, sangria e suprimento, e os recebimentos do turno.
+  - **Fechamento** (quem abriu ou o dono): dinheiro contado, diferença (sobra ou falta) e passagem de plantão.
+  - O dono vê o histórico de turnos com as diferenças e edita a lista de conferência.
+- **Reservas:** "Registrar saída" fica na conta da hospedagem e **exige o pagamento** do total (pode dividir entre
+  dinheiro, Pix, crédito e débito), com o turno aberto. Consumo informado depois da saída aparece como saldo e é
+  recebido pela própria conta. Só o dono estorna pagamentos.
+
 ## Visualizador 3D (suíte demonstrativa realista)
 
 - **Página:** `/demo/suite-3d` (pública). `?qualidade=rapida` força o modo leve.
