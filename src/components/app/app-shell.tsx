@@ -10,6 +10,8 @@ type Role = "dono" | "recepcao" | "camareira";
 const ROLE_LABEL: Record<Role, string> = { dono: "Proprietário", recepcao: "Recepção", camareira: "Camareira" };
 
 export type NavItem = { href: string; label: string; icon: IconName; exact?: boolean };
+/** Aviso do sininho. So dados reais (ex.: alertas do estoque). */
+export type Notice = { id: string; title: string; text: string; href: string; tone?: "warn" | "bad" };
 type MotelRef = { id: string; name: string; role: Role };
 
 export function AppShell({
@@ -17,12 +19,14 @@ export function AppShell({
   motels,
   email,
   nav,
+  notices = [],
   children,
 }: {
   motel: MotelRef;
   motels: MotelRef[];
   email: string;
   nav: NavItem[];
+  notices?: Notice[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -123,16 +127,31 @@ export function AppShell({
               <button
                 type="button"
                 className="icon-btn bare"
-                aria-label="Notificações"
+                aria-label={notices.length ? `Notificações (${notices.length})` : "Notificações"}
                 aria-expanded={openMenu === "bell"}
                 onClick={() => toggle("bell")}
               >
                 <Icon name="bell" />
+                {notices.length > 0 && <span className="bell-count">{notices.length > 9 ? "9+" : notices.length}</span>}
               </button>
               {openMenu === "bell" && (
                 <div className="popover bell-popover" role="dialog" aria-label="Notificações">
                   <p className="popover-title">Notificações</p>
-                  <p className="popover-empty">Nenhuma notificação por enquanto.</p>
+                  {notices.length === 0 ? (
+                    <p className="popover-empty">Nenhuma notificação por enquanto.</p>
+                  ) : (
+                    <ul className="notice-list">
+                      {notices.slice(0, 8).map((n) => (
+                        <li key={n.id}>
+                          <Link href={n.href} className={`notice ${n.tone ?? "warn"}`}>
+                            <strong>{n.title}</strong>
+                            <span>{n.text}</span>
+                          </Link>
+                        </li>
+                      ))}
+                      {notices.length > 8 && <li className="popover-empty">e mais {notices.length - 8}…</li>}
+                    </ul>
+                  )}
                 </div>
               )}
             </div>
@@ -252,7 +271,8 @@ export type IconName =
   | "trend"
   | "door"
   | "percent"
-  | "users";
+  | "users"
+  | "estoque";
 
 const PATHS: Record<IconName, React.ReactNode> = {
   dashboard: <><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 9.5V20h13V9.5" /><path d="M10 20v-5h4v5" /></>,
@@ -273,6 +293,7 @@ const PATHS: Record<IconName, React.ReactNode> = {
   cube: <><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></>,
   trend: <><path d="M3 17 9 11l4 4 8-8" /><path d="M15 7h6v6" /></>,
   door: <><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18" /><path d="M15 12h.01" /></>,
+  estoque: <><path d="M3 8.5 12 4l9 4.5v8L12 21l-9-4.5v-8Z" /><path d="M3 8.5 12 13l9-4.5M12 13v8M7.5 6.3l9 4.5" /></>,
   percent: <><path d="M19 5 5 19" /><circle cx="7" cy="7" r="2.5" /><circle cx="17" cy="17" r="2.5" /></>,
 };
 

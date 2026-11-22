@@ -110,6 +110,24 @@ Fluxo: **login → Meus estabelecimentos (`/painel`) → painel do motel (`/pain
 
 O botão **Sair** fica no painel.
 
+## Estoque (Fase 1A)
+
+- `/painel/[id]/estoque`. Requer `supabase/04_estoque.sql` rodado no Supabase (sem ele, a página avisa).
+- Abas por perfil:
+  | Aba | Dono | Recepção | Camareira |
+  |---|---|---|---|
+  | Saldos (com alertas) | ✔ (com custo médio e valor em estoque) | ✔ | ✔ (sem custos) |
+  | Movimentar | entrada, saída (todas), enxoval | consumo, uso interno, enxoval | — |
+  | Conferência | conta, **fecha** (ajusta) ou cancela | conta (sem ver o saldo do sistema) | — |
+  | Histórico | ✔ com custo e **estorno** | ✔ | — |
+  | Consumo (relatório 7/30/90 dias) | ✔ com custo | ✔ | — |
+  | Cadastros (produtos, categorias, fornecedores) | ✔ | — | — |
+- **Enxoval circula** (estoque → suítes → lavanderia → estoque) e só sai de vez por perda ou avaria.
+- **Estoque negativo é permitido** e aparece como alerta. Alertas (negativo, abaixo do mínimo, vence em até
+  15 dias, vencido) aparecem na aba Saldos e no **sininho** do painel.
+- Toda movimentação passa por funções do banco (transação única, perfil conferido, chave anti-duplicidade).
+  Nada é apagado: correções são estornos. Cada ação vai para `audit_logs`.
+
 ## Visualizador 3D (suíte demonstrativa realista)
 
 - **Página:** `/demo/suite-3d` (pública). `?qualidade=rapida` força o modo leve.

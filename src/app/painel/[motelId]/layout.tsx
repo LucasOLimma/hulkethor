@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { can, getMyMotels, requireMotel } from "@/lib/motel-access";
-import { AppShell, type NavItem } from "@/components/app/app-shell";
+import { AppShell, type NavItem, type Notice } from "@/components/app/app-shell";
+import { ALERT_LABEL, LOCATION_LABEL, formatDateBR, formatQty, readAlerts } from "@/lib/stock";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export default async function MotelLayout({
           { href: `${base}/clientes`, label: "Clientes", icon: "clientes" },
         ] as NavItem[])
       : []),
+    { href: `${base}/estoque`, label: "Estoque", icon: "estoque" },
     ...(perm.team ? ([{ href: `${base}/equipe`, label: "Equipe", icon: "equipe" }] as NavItem[]) : []),
     ...(perm.reports
       ? ([
@@ -42,8 +44,25 @@ export default async function MotelLayout({
     { href: `${base}/meu-motel`, label: "Meu Motel", icon: "motel" },
   ];
 
+  // Sininho: alertas reais do estoque (abaixo do minimo, negativo, validade).
+  // Se o 04_estoque.sql ainda nao foi rodado, a funcao nao existe: sem avisos.
+  const { data: alertRows } = await ctx.supabase.rpc("stock_alerts", { p_motel: ctx.motel.id });
+  const notices: Notice[] = readAlerts(alertRows).map((a, i) => ({
+    id: `${a.kind}-${a.productId}-${i}`,
+    title: `${ALERT_LABEL[a.kind]}: ${a.productName}`,
+    text:
+      a.kind === "negativo"
+        ? `${LOCATION_LABEL[a.location]}: ${formatQty(a.qty, a.unit)}`
+        : a.kind === "abaixo_minimo"
+          ? `${formatQty(a.qty, a.unit)} no estoque (mínimo ${formatQty(a.minQty, a.unit)})`
+          : `${formatQty(a.qty, a.unit)}${a.lotCode ? `, lote ${a.lotCode}` : ""}: ${a.kind === "vencido" ? "venceu" : "vence"} em ${formatDateBR(a.expiresOn!)}`,
+    href: `${base}/estoque`,
+    tone: a.kind === "negativo" || a.kind === "vencido" ? "bad" : "warn",
+  }));
+
   return (
     <AppShell
+      notices={notices}
       motel={{ id: ctx.motel.id, name: ctx.motel.name, role: ctx.role }}
       motels={motels.map((m) => ({ id: m.id, name: m.name, role: m.role }))}
       email={ctx.user.email ?? ""}
