@@ -47,8 +47,9 @@ comercial. Sem o arquivo, a tela mostra um fundo escuro neutro.
   (`src/lib/reservations.ts`: `CLEANING_MINUTES`, `OVERNIGHT_CHECKOUT`).
 - Código único de 6 caracteres por reserva; valor sugerido pela tabela de preços da suíte; confirmação de
   maioridade obrigatória; cada ação vai para `audit_logs` (`log_audit`).
-- Limitação: a checagem de conflito é feita no servidor do app. Duas pessoas salvando a mesma suíte no
-  mesmo segundo ainda poderiam passar; a proteção total exige uma regra no banco (ver próximos passos).
+- Conflito também barrado **no banco** por `supabase/02_reservas_sem_conflito.sql` (regra de exclusão com
+  as mesmas regras de horário), inclusive para duas pessoas salvando no mesmo instante. Se o banco recusar,
+  o site mostra uma mensagem clara.
 
 ## Área do proprietário (multi-motel)
 

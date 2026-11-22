@@ -18,6 +18,9 @@ export type ReservationState = { error?: string; success?: string; savedAt?: num
 
 const MSG_SEM_PERMISSAO = "Você não tem permissão para gerenciar reservas deste estabelecimento.";
 const MSG_ERRO = "Não foi possível concluir agora. Tente novamente.";
+// erro do banco quando a regra "reservas_sem_conflito" (02_reservas_sem_conflito.sql) barra a gravacao
+const MSG_CONFLITO_BANCO = "Esta suíte acabou de ser reservada nesse horário por outra pessoa. Escolha outro horário ou outra suíte.";
+const isOverlap = (e: { code?: string } | null) => e?.code === "23P01";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function text(fd: FormData, field: string, max = 200) {
@@ -157,6 +160,7 @@ export async function createReservation(_prev: ReservationState, fd: FormData): 
       revalidatePath(`/painel/${ctx.motel.id}`, "layout");
       return { success: `Reserva ${code} criada para a suíte ${f.suiteNumber}.`, savedAt: Date.now() };
     }
+    if (isOverlap(error)) return { error: MSG_CONFLITO_BANCO };
     if (error?.code !== "23505") return { error: MSG_ERRO };
   }
   return { error: MSG_ERRO };
@@ -192,6 +196,7 @@ export async function updateReservation(_prev: ReservationState, fd: FormData): 
     .eq("motel_id", ctx.motel.id)
     .eq("status", "confirmada") // so edita se ainda estiver confirmada
     .select("code");
+  if (isOverlap(error)) return { error: MSG_CONFLITO_BANCO };
   if (error) return { error: MSG_ERRO };
   if (!data?.length) return { error: "Só é possível editar reservas confirmadas." };
 
