@@ -288,7 +288,9 @@ export function ReservationItem({
               onSubmit={submitWith(
                 action,
                 t.to === "cancelada"
-                  ? `Cancelar a reserva ${r.code}? Isso não pode ser desfeito.`
+                  ? r.status === "pendente"
+                    ? `Recusar o pedido ${r.code}?`
+                    : `Cancelar a reserva ${r.code}? Isso não pode ser desfeito.`
                   : t.to === "nao_compareceu"
                     ? `Marcar a reserva ${r.code} como "não compareceu"?`
                     : undefined,

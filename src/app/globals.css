@@ -526,7 +526,8 @@ button.secondary:disabled { opacity: 0.6; cursor: wait; }
    As variaveis abaixo valem so dentro destas telas.
    ===================================================================== */
 .select-page,
-.app {
+.app,
+.public-page {
   --bg: #0c0b0d;
   --surface: #151417;
   --surface-2: #1b1a1e;
@@ -553,7 +554,7 @@ button.secondary:disabled { opacity: 0.6; cursor: wait; }
   background: var(--bg);
   color: var(--text);
 }
-.select-page a, .app a { color: inherit; }
+.select-page a, .app a, .public-page a { color: inherit; }
 
 .btn-gold {
   display: inline-flex;
@@ -1335,4 +1336,62 @@ button.secondary:disabled { opacity: 0.6; cursor: wait; }
   .res-grid { grid-template-columns: 1fr; }
   .res-main { flex-wrap: wrap; }
   .res-total { width: 100%; text-align: right; }
+}
+.status-pill.s-pendente { background: rgba(90, 140, 230, 0.2); color: #9cc0ff; }
+.res-item.st-pendente { border-left-color: #9cc0ff; }
+.tab-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 6px; padding: 0 5px; border-radius: 999px; background: #5a8ce6; color: #fff; font-size: 0.7rem; font-weight: 700; }
+
+/* ===================== PAGINA PUBLICA DO MOTEL ===================== */
+.public-page { display: flex; flex-direction: column; }
+.public-hero { position: relative; min-height: 62vh; display: flex; align-items: flex-end; padding: 48px clamp(18px, 5vw, 72px); overflow: hidden; }
+.public-hero-img { object-fit: cover; object-position: 30% 60%; }
+.public-hero-shade { position: absolute; inset: 0; background: linear-gradient(0deg, #0c0b0d 0%, rgba(12, 11, 13, 0.55) 45%, rgba(12, 11, 13, 0.2) 100%); }
+.public-hero-text { position: relative; max-width: 640px; }
+.public-eyebrow { margin: 0; font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--primary); font-weight: 600; }
+.public-hero-text h1 { margin: 8px 0 6px; font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 600; letter-spacing: -0.02em; }
+.public-address { margin: 0 0 22px; color: rgba(243, 238, 230, 0.8); }
+.public-hero-text .btn-gold { border-radius: 999px; padding: 13px 24px; }
+.public-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 48px clamp(16px, 4vw, 40px) 64px; }
+.public-section-title { margin: 0; font-size: 1.7rem; font-weight: 600; }
+.public-section-sub { margin: 6px 0 28px; color: var(--muted); }
+.public-suites { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; align-items: start; }
+.public-suite { border-radius: 20px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
+.public-suite-cover {
+  height: 150px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(212, 168, 90, 0.25), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(110, 50, 70, 0.3), transparent 60%),
+    linear-gradient(150deg, #241b17, #121013);
+}
+.public-suite-cover span { font-size: 2.6rem; font-weight: 300; letter-spacing: 0.06em; color: #f3d9a4; }
+.public-suite-body { padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.public-suite-body h3 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+.public-suite-type { margin: 0; color: var(--muted); }
+.public-items { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.public-items li { font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(212, 168, 90, 0.35); color: #f1dcb5; }
+.public-prices { margin: 4px 0 6px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.public-prices div { padding: 9px 11px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
+.public-prices dt { font-size: 0.75rem; color: var(--muted); }
+.public-prices dd { margin: 2px 0 0; font-weight: 650; font-variant-numeric: tabular-nums; }
+.public-cta { width: 100%; }
+.public-form { display: flex; flex-direction: column; gap: 12px; padding-top: 6px; border-top: 1px solid var(--border); }
+.public-form .field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+.public-form .field .text-input, .public-form .field .select { width: 100%; font-weight: 400; }
+.public-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.public-form-grid .full { grid-column: 1 / -1; }
+.public-page input[type="date"], .public-page input[type="time"] { color-scheme: dark; }
+.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.public-done { padding: 16px; border-radius: 14px; background: var(--ok-bg); border: 1px solid var(--ok-border); text-align: center; }
+.public-done p { margin: 0 0 6px; }
+.public-done-title { font-size: 1.1rem; font-weight: 650; color: var(--ok-text); }
+.public-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.4rem; letter-spacing: 0.12em; color: #f3d9a4; }
+.public-done-text { font-size: 0.85rem; color: var(--muted); }
+.public-legal { margin: 32px 0 0; text-align: center; font-size: 0.82rem; color: var(--muted); }
+.public-footer { padding: 22px; text-align: center; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }
+.public-footer em { font-style: normal; color: var(--primary); }
+@media (max-width: 560px) {
+  .public-suites { grid-template-columns: 1fr; }
+  .public-hero { min-height: 52vh; }
 }

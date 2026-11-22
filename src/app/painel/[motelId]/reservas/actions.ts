@@ -215,6 +215,24 @@ export async function changeReservationStatus(_prev: ReservationState, fd: FormD
   if (!UUID_RE.test(id) || !isStatus(from) || !isStatus(to)) return { error: MSG_ERRO };
   if (!TRANSITIONS[from].some((t) => t.to === to)) return { error: "Mudança de situação não permitida." };
 
+  // confirmar um pedido de cliente: o horario precisa estar livre
+  if (from === "pendente" && to === "confirmada") {
+    const { data: rv } = await ctx.supabase
+      .from("reservations")
+      .select("suite_id, stay_date, arrival_time, period")
+      .eq("id", id)
+      .eq("motel_id", ctx.motel.id)
+      .maybeSingle();
+    if (!rv) return { error: MSG_ERRO };
+    const conflict = await findConflict(
+      ctx,
+      { suiteId: rv.suite_id as string, date: rv.stay_date as string, time: ((rv.arrival_time as string | null) ?? "00:00").slice(0, 5), period: rv.period as Period },
+      id,
+    );
+    if ("error" in conflict) return { error: MSG_ERRO };
+    if (conflict.hit) return { error: `Não dá para confirmar: a suíte já está reservada nesse horário (reserva ${conflict.hit.code}). Recuse o pedido ou combine outro horário com o cliente.` };
+  }
+
   // so muda se a reserva ainda estiver na situacao que a tela mostrou
   const { data, error } = await ctx.supabase
     .from("reservations")
@@ -223,6 +241,7 @@ export async function changeReservationStatus(_prev: ReservationState, fd: FormD
     .eq("motel_id", ctx.motel.id)
     .eq("status", from)
     .select("code");
+  if (isOverlap(error)) return { error: MSG_CONFLITO_BANCO };
   if (error) return { error: MSG_ERRO };
   if (!data?.length) return { error: "A reserva mudou enquanto você olhava. Atualize a página." };
 

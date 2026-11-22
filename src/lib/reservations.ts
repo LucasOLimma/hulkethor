@@ -4,9 +4,10 @@ import type { Period } from "./periods";
 // REGRAS DAS RESERVAS (usadas no servidor e na tela)
 // =====================================================================
 
-export type ReservationStatus = "confirmada" | "chegou" | "concluida" | "cancelada" | "nao_compareceu";
+export type ReservationStatus = "pendente" | "confirmada" | "chegou" | "concluida" | "cancelada" | "nao_compareceu";
 
 export const STATUS_LABEL: Record<ReservationStatus, string> = {
+  pendente: "Pendente",
   confirmada: "Confirmada",
   chegou: "Em andamento",
   concluida: "Concluída",
@@ -16,6 +17,11 @@ export const STATUS_LABEL: Record<ReservationStatus, string> = {
 
 /** Mudancas de situacao permitidas (qualquer outra e recusada no servidor). */
 export const TRANSITIONS: Record<ReservationStatus, { to: ReservationStatus; label: string; tone: "primary" | "danger" | "neutral" }[]> = {
+  // pedido feito pelo cliente na pagina publica (03_pagina_publica.sql)
+  pendente: [
+    { to: "confirmada", label: "Confirmar pedido", tone: "primary" },
+    { to: "cancelada", label: "Recusar", tone: "danger" },
+  ],
   confirmada: [
     { to: "chegou", label: "Registrar chegada", tone: "primary" },
     { to: "nao_compareceu", label: "Não compareceu", tone: "neutral" },

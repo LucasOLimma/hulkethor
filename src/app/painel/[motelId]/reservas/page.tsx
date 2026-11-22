@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 const TABS = [
   { id: "hoje", label: "Hoje" },
+  { id: "pendentes", label: "Pedidos" },
   { id: "proximas", label: "Próximas" },
   { id: "andamento", label: "Em andamento" },
   { id: "historico", label: "Histórico" },
@@ -41,6 +42,7 @@ export default async function ReservasPage({
     .select("id, code, guest_name, stay_date, period, arrival_time, total_cents, decoration, status, suite_id, created_at")
     .eq("motel_id", ctx.motel.id);
   if (tab === "hoje") query = query.eq("stay_date", today).order("arrival_time", { ascending: true });
+  if (tab === "pendentes") query = query.eq("status", "pendente").order("stay_date").order("arrival_time");
   if (tab === "proximas") query = query.gt("stay_date", today).eq("status", "confirmada").order("stay_date").order("arrival_time");
   if (tab === "andamento") query = query.eq("status", "chegou").order("stay_date").order("arrival_time");
   if (tab === "historico") query = query.lt("stay_date", today).order("stay_date", { ascending: false }).order("arrival_time", { ascending: false });
@@ -50,9 +52,10 @@ export default async function ReservasPage({
     query = query.or(`code.ilike.${pattern},guest_name.ilike.${pattern}`);
   }
 
-  const [{ data: rows, error }, { data: suiteRows }] = await Promise.all([
+  const [{ data: rows, error }, { data: suiteRows }, { count: pendingCount }] = await Promise.all([
     query.limit(200),
     ctx.supabase.from("suites").select("id, number, type, active, prices_cents").eq("motel_id", ctx.motel.id),
+    ctx.supabase.from("reservations").select("id", { count: "exact", head: true }).eq("motel_id", ctx.motel.id).eq("status", "pendente"),
   ]);
 
   const suites: SuiteOption[] = (suiteRows ?? [])
@@ -92,6 +95,7 @@ export default async function ReservasPage({
             {TABS.map((t) => (
               <Link key={t.id} href={`${base}?aba=${t.id}${q ? `&q=${encodeURIComponent(q)}` : ""}`} aria-current={t.id === tab ? "page" : undefined}>
                 {t.label}
+                {t.id === "pendentes" && (pendingCount ?? 0) > 0 && <span className="tab-badge">{pendingCount}</span>}
               </Link>
             ))}
           </nav>
@@ -106,7 +110,7 @@ export default async function ReservasPage({
           <p className="alert error" role="alert">Não foi possível carregar as reservas agora.</p>
         ) : list.length === 0 ? (
           <p className="empty">
-            {q ? "Nenhuma reserva encontrada para essa busca." : tab === "hoje" ? "Nenhuma reserva para hoje." : "Nenhuma reserva aqui."}
+            {q ? "Nenhuma reserva encontrada para essa busca." : tab === "hoje" ? "Nenhuma reserva para hoje." : tab === "pendentes" ? "Nenhum pedido de cliente aguardando." : "Nenhuma reserva aqui."}
           </p>
         ) : (
           <>

@@ -30,6 +30,7 @@ export type SuiteOpStatus = "livre" | "ocupada" | "reservada" | "desativada";
 export const VALID_STATUSES = ["confirmada", "chegou", "concluida"];
 
 export const STATUS_LABEL: Record<string, string> = {
+  pendente: "Pendente",
   confirmada: "Confirmada",
   chegou: "Em andamento",
   concluida: "Concluída",

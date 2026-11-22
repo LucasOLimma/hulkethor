@@ -37,6 +37,15 @@ A tela de login usa uma **fotografia real** em `public/login/suite.jpg` (horizon
 largura, JPG). Para trocar, substitua o arquivo. Use uma foto do próprio motel ou com licença de uso
 comercial. Sem o arquivo, a tela mostra um fundo escuro neutro.
 
+## Página pública do motel (clientes)
+
+- `/m/[slug]` (sem login): nome, endereço e suítes ativas com preços; o cliente pede a reserva (data,
+  horário, período, nome opcional, maioridade e consentimento) e recebe um código.
+- O pedido entra como **"pendente"** (não bloqueia a suíte). A equipe vê em **Reservas → Pedidos** e
+  confirma (com nova checagem de conflito) ou recusa.
+- Requer `supabase/02_reservas_sem_conflito.sql` e `supabase/03_pagina_publica.sql` rodados no Supabase.
+- Link "Ver página pública" em **Meu Motel**.
+
 ## Reservas (equipe)
 
 - `/painel/[id]/reservas`: dono e recepção criam, editam (enquanto confirmada) e mudam a situação das

@@ -17,7 +17,15 @@ export default async function MeuMotelPage({ params }: { params: Promise<{ motel
 
   return (
     <>
-      <PageHeader title="Meu Motel" subtitle="Dados cadastrais do estabelecimento." />
+      <PageHeader
+        title="Meu Motel"
+        subtitle="Dados cadastrais do estabelecimento."
+        actions={
+          <a href={`/m/${ctx.motel.slug}`} className="btn-ghost" target="_blank" rel="noopener">
+            Ver página pública ↗
+          </a>
+        }
+      />
       <div className="content-card">
         {error || !m ? (
           <p className="alert error" role="alert">Não foi possível carregar os dados agora.</p>
