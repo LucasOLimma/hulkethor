@@ -1564,3 +1564,47 @@ button.secondary:disabled { opacity: 0.6; cursor: wait; }
   .hk-actions .btn-ghost, .hk-actions .btn-primary { width: 100%; }
 }
 .hk-cond { padding: 6px 4px; line-height: 1.15; }
+
+/* ---------- central de turnos e caixa ---------- */
+.shift-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.hk-kpi strong.small { font-size: 1.25rem; }
+.shift-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; margin-top: 16px; }
+.shift-grid > .content-card { margin: 0; }
+.shift-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.shift-head .card-title { margin: 0; }
+.checklist { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; }
+.checklist label { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.checklist label.on span { color: var(--muted); }
+.checklist input { width: 22px; height: 22px; accent-color: #d4a85a; flex: none; }
+.shift-open .form-grid { margin-bottom: 12px; }
+.shift-open-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--surface-2); }
+.shift-open-foot .res-hint { margin: 0; flex: 1 1 240px; }
+.handover { margin-bottom: 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(90, 140, 230, 0.4); background: rgba(90, 140, 230, 0.08); }
+.handover p { margin: 6px 0; white-space: pre-wrap; }
+.handover small { color: var(--muted); }
+.shift-info { margin-bottom: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cash-table { margin-top: 12px; }
+.cash-table td.muted { color: var(--muted); }
+.shift-actions { margin-top: 14px; }
+.shift-close textarea { width: 100%; font: inherit; resize: vertical; }
+.cash-form { margin-bottom: 12px; }
+.cash-form .select { flex: 0 1 200px; }
+.cash-form .text-input:not(.bill-price) { flex: 1 1 200px; }
+.cash-form .alert { flex-basis: 100%; margin: 0; }
+.cash-list { margin-bottom: 8px; }
+.card-title.spaced { margin-top: 18px; }
+.pay-open { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.pay-open .alert { margin: 0; }
+.pay-form { margin-top: 12px; padding: 14px; border-radius: 12px; border: 1px solid rgba(212, 168, 90, 0.4); display: flex; flex-direction: column; gap: 10px; }
+.pay-form .alert { margin: 0; }
+.pay-due { margin: 0; }
+.pay-due strong { color: var(--primary); font-size: 1.1rem; }
+.pay-quick { display: flex; flex-wrap: wrap; gap: 6px; }
+.pay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.pay-grid .field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+.pay-grid .text-input { width: 100%; }
+.pay-sum { margin: 0; font-size: 0.9rem; color: #f0a48f; }
+.pay-sum.ok { color: #8fd6a6; }
+@media (max-width: 560px) {
+  .shift-grid { grid-template-columns: 1fr; }
+}

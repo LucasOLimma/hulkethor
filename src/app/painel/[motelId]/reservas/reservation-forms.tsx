@@ -220,6 +220,7 @@ export function ReservationItem({
   today,
   maxDate,
   bill,
+  hideTransitionTo,
 }: {
   motelId: string;
   r: ReservationView;
@@ -227,6 +228,8 @@ export function ReservationItem({
   today: string;
   maxDate: string;
   bill?: React.ReactNode;
+  /** situacoes cujo botao fica em outro lugar (ex.: saida com pagamento, na conta) */
+  hideTransitionTo?: ReservationView["status"][];
 }) {
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -256,7 +259,7 @@ export function ReservationItem({
     );
   }
 
-  const transitions = TRANSITIONS[r.status];
+  const transitions = TRANSITIONS[r.status].filter((t) => !hideTransitionTo?.includes(t.to));
   const when = r.date === today ? "Hoje" : dayLabel(r.date);
 
   return (
