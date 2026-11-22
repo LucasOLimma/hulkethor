@@ -1,0 +1,9 @@
+Modelos 3D, texturas PBR e HDRI desta pasta: Poly Haven (https://polyhaven.com)
+Licença: CC0 1.0 (domínio público) — uso comercial livre, sem necessidade de atribuição.
+
+Modelos: modern_arm_chair_01, coffee_table_round_01, side_table_01, modern_wooden_cabinet,
+         modern_ceiling_lamp_01, potted_plant_02, ceramic_vase_01, Ottoman_01
+Texturas: rectangular_parquet, marble_01, plastered_wall_04, velour_velvet, rough_linen, dark_wood
+HDRI: warm_bar (1k)
+
+As imagens foram convertidas para WebP para carregar mais rápido.
