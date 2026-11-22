@@ -65,6 +65,11 @@ drop policy if exists suite_photos_upload on storage.objects;
 create policy suite_photos_upload on storage.objects for insert to authenticated
   with check (bucket_id = 'suite-photos'
               and public.has_role(public._try_uuid((storage.foldername(name))[1]), array['dono']));
+-- leitura: o Storage le de volta o arquivo recem-enviado (sem esta regra o envio e recusado)
+drop policy if exists suite_photos_read on storage.objects;
+create policy suite_photos_read on storage.objects for select to authenticated
+  using (bucket_id = 'suite-photos'
+         and public.is_member(public._try_uuid((storage.foldername(name))[1])));
 drop policy if exists suite_photos_remove on storage.objects;
 create policy suite_photos_remove on storage.objects for delete to authenticated
   using (bucket_id = 'suite-photos'
@@ -345,7 +350,12 @@ grant execute on function public.public_cancel_reservation(text, text, text) to 
 -- drop table if exists public.public_lookup_attempts, public.suite_photos;
 -- drop function if exists public._suite_photos_limit();
 -- drop policy if exists suite_photos_upload on storage.objects;
--- drop policy if exists suite_photos_remove on storage.objects;
+-- -- leitura: o Storage le de volta o arquivo recem-enviado (sem esta regra o envio e recusado)
+drop policy if exists suite_photos_read on storage.objects;
+create policy suite_photos_read on storage.objects for select to authenticated
+  using (bucket_id = 'suite-photos'
+         and public.is_member(public._try_uuid((storage.foldername(name))[1])));
+drop policy if exists suite_photos_remove on storage.objects;
 -- alter table public.reservations drop column if exists guest_phone;
 -- alter table public.motel_settings drop column if exists client_cancel_hours;
 -- (a funcao public_motel_page volta a versao do 03 rodando o PASSO 2 do 03 de novo)
