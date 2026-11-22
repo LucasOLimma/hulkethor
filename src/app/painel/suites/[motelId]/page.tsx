@@ -51,6 +51,12 @@ export default async function SuitesPage({ params }: { params: Promise<{ motelId
           {suites.length}
         </p>
 
+        <p className="demo-3d-link">
+          <Link href="/demo/suite-3d" className="btn-link">
+            Ver suíte demonstrativa em 3D →
+          </Link>
+        </p>
+
         {member.isOwner && <NewSuite motelId={motelId} />}
 
         {error ? (

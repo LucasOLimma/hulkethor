@@ -42,9 +42,18 @@ O banco já foi criado com [`supabase/01_base_multi_motel.sql`](supabase/01_base
 | `/redefinir-senha` | Criar a nova senha (só com sessão aberta). |
 | `/painel` | Página protegida: nome do motel e perfil, lidos de `motel_members` + `motels`. |
 | `/painel/suites/[id do motel]` | Suítes do motel. Toda a equipe vê; **só o dono** cria, edita, ativa/desativa e exclui. |
+| `/demo/suite-3d` | **Suíte demonstrativa em 3D** (pública, sem login): girar 360°, zoom, ângulos prontos, pontos de interesse, climas de luz. |
 | `/painel/equipe/[id do motel]` | **Só para o dono:** convidar pessoas, trocar perfil, desativar/reativar. |
 
 O botão **Sair** fica no painel.
+
+## Visualizador 3D
+
+- Feito com **Three.js** (WebGL), sem outras bibliotecas 3D. O código 3D só é baixado na página do visualizador.
+- `src/components/suite3d/demo-suite.ts`: a suíte demonstrativa, construída em código (medidas em metros).
+- `src/components/suite3d/engine.ts`: câmera, controles (mouse e toque), luzes, qualidade automática no celular.
+- `src/components/suite3d/suite-viewer.tsx`: a interface (painel de informações, ângulos, climas, fotos).
+- Próximas etapas: modelos `.glb` enviados por cada motel, fotos reais e página pública por motel.
 
 ## Suítes (etapa 3)
 
