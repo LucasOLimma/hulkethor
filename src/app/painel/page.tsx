@@ -71,6 +71,9 @@ export default async function PainelPage() {
                 <span className="motel-name">{v.motelName}</span>
                 <span className="member-actions">
                   <span className="badge">{ROLE_LABEL[v.role] ?? v.role}</span>
+                  <Link href={`/painel/suites/${v.motelId}`} className="btn-link">
+                    Suítes →
+                  </Link>
                   {v.role === "dono" && (
                     <Link href={`/painel/equipe/${v.motelId}`} className="btn-link">
                       Equipe →

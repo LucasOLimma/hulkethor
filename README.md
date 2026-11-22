@@ -41,9 +41,19 @@ O banco já foi criado com [`supabase/01_base_multi_motel.sql`](supabase/01_base
 | `/auth/convite` | Destino do link do e-mail de convite. Abre a sessão e leva para `/redefinir-senha`. |
 | `/redefinir-senha` | Criar a nova senha (só com sessão aberta). |
 | `/painel` | Página protegida: nome do motel e perfil, lidos de `motel_members` + `motels`. |
+| `/painel/suites/[id do motel]` | Suítes do motel. Toda a equipe vê; **só o dono** cria, edita, ativa/desativa e exclui. |
 | `/painel/equipe/[id do motel]` | **Só para o dono:** convidar pessoas, trocar perfil, desativar/reativar. |
 
 O botão **Sair** fica no painel.
+
+## Suítes (etapa 3)
+
+- Preços ficam em `suites.prices_cents` em **centavos**, um por período, com as mesmas chaves que
+  `reservations.period` aceita: `{"3h": 9000, "6h": 12000, "12h": 16000, "pernoite": 19000}`.
+  Período sem preço = a suíte não oferece aquele período.
+- Itens ficam em `suites.items` (lista de textos).
+- Tudo usa a chave pública; quem pode alterar é decidido pelo banco (regra `suites_write`: só dono).
+- Suíte com reservas não pode ser excluída (o banco protege o histórico): desative-a.
 
 ## Equipe (etapa 2): configuração extra
 
