@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useState } from "react";
 import { centsToInput, formatCents, PERIOD_LABEL, PERIODS, type Period, type PricesCents } from "@/lib/periods";
 import { checkoutLabel, STATUS_LABEL, TRANSITIONS, type ReservationStatus } from "@/lib/reservations";
+import { formatPhone } from "@/lib/phone";
 import { changeReservationStatus, createReservation, updateReservation, type ReservationState } from "./actions";
 
 export type SuiteOption = { id: string; number: string; type: string; active: boolean; prices: PricesCents };
@@ -18,6 +19,8 @@ export type ReservationView = {
   status: ReservationStatus;
   suiteId: string;
   suiteNumber: string;
+  /** celular (07_portal_cliente.sql); null = recurso ainda nao ativado */
+  phone: string | null;
 };
 
 const dayLabel = (iso: string) => iso.split("-").reverse().join("/");
@@ -55,6 +58,7 @@ function ReservationForm({
   today,
   maxDate,
   initial,
+  withPhone,
   onSuccess,
   onCancel,
 }: {
@@ -63,6 +67,7 @@ function ReservationForm({
   today: string;
   maxDate: string;
   initial?: ReservationView;
+  withPhone?: boolean;
   onSuccess: (msg: string) => void;
   onCancel?: () => void;
 }) {
@@ -139,6 +144,12 @@ function ReservationForm({
           <span>Nome do hóspede (opcional)</span>
           <input name="guest" className="text-input" defaultValue={initial?.guest} maxLength={80} placeholder="Pode ficar em branco" />
         </label>
+        {withPhone && (
+          <label className="field">
+            <span>Celular (opcional, para a Minha Reserva)</span>
+            <input name="phone" type="tel" className="text-input" defaultValue={formatPhone(initial?.phone)} maxLength={20} placeholder="(11) 98765-4321" />
+          </label>
+        )}
       </div>
       <label className="field">
         <span>Decoração ou pedido especial (opcional)</span>
@@ -172,7 +183,7 @@ function ReservationForm({
 }
 
 // ---------- caixa "Nova reserva" ----------
-export function NewReservation(props: { motelId: string; suites: SuiteOption[]; today: string; maxDate: string }) {
+export function NewReservation(props: { motelId: string; suites: SuiteOption[]; today: string; maxDate: string; withPhone?: boolean }) {
   const [open, setOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const [done, setDone] = useState<string | null>(null);
@@ -249,6 +260,7 @@ export function ReservationItem({
           today={today < r.date ? today : r.date}
           maxDate={maxDate}
           initial={r}
+          withPhone={r.phone !== null}
           onSuccess={(m) => {
             setMsg(m);
             setEditing(false);
@@ -278,6 +290,7 @@ export function ReservationItem({
             <span className="mono">{r.code}</span>
             {" · "}
             {r.guest || "Hóspede não informado"}
+            {r.phone ? ` · ${formatPhone(r.phone)}` : ""}
             {r.time && <> · saída {checkoutLabel(r.date, r.time, r.period)}</>}
           </p>
           {r.decoration && <p className="res-deco">✦ {r.decoration}</p>}

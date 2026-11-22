@@ -82,7 +82,17 @@ export default async function ReservasPage({
     status: r.status as ReservationView["status"],
     suiteId: r.suite_id as string,
     suiteNumber: suiteNumber.get(r.suite_id as string) ?? "—",
+    phone: null as string | null,
   }));
+  // celular (07_portal_cliente.sql). Consulta separada: sem o arquivo rodado,
+  // a lista continua funcionando (sem celular).
+  const phonesR = await ctx.supabase.from("reservations").select("id, guest_phone").eq("motel_id", ctx.motel.id).limit(1);
+  const phoneOn = !phonesR.error;
+  if (phoneOn && list.length) {
+    const { data: ph } = await ctx.supabase.from("reservations").select("id, guest_phone").in("id", list.map((r) => r.id));
+    const byId = new Map((ph ?? []).map((x) => [x.id as string, (x.guest_phone as string | null) ?? ""]));
+    for (const r of list) r.phone = byId.get(r.id) ?? "";
+  }
 
   // conta da hospedagem (05_operacao.sql): reservas em andamento ou concluidas.
   // Sem o arquivo rodado, as reservas aparecem como antes (sem conta).
@@ -143,7 +153,7 @@ export default async function ReservasPage({
       <PageHeader title="Reservas" subtitle="Crie, acompanhe e atualize as reservas deste estabelecimento." />
 
       <div className="content-card">
-        <NewReservation motelId={ctx.motel.id} suites={suites.filter((s) => s.active)} today={today} maxDate={addDays(today, 365)} />
+        <NewReservation motelId={ctx.motel.id} suites={suites.filter((s) => s.active)} today={today} maxDate={addDays(today, 365)} withPhone={phoneOn} />
 
         <div className="res-toolbar">
           <nav className="segmented-links" aria-label="Filtrar reservas">

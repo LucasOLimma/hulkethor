@@ -9,6 +9,7 @@ import {
   type PricesCents,
 } from "@/lib/periods";
 import { deleteSuite, saveSuite, setSuiteActive, type SuiteState } from "@/app/painel/suites/actions";
+import { PhotoManager, type PhotoView } from "./photo-manager";
 
 export type Suite = {
   id: string;
@@ -191,11 +192,14 @@ export function SuiteCard({
   suite,
   canEdit,
   categories,
+  photos,
 }: {
   motelId: string;
   suite: Suite;
   canEdit: boolean;
   categories?: CategoryOption[];
+  /** fotos (07_portal_cliente.sql); undefined = recurso ainda nao ativado */
+  photos?: PhotoView[];
 }) {
   const [editing, setEditing] = useState(false);
   const [activeState, activeAction, activePending] = useActionState(setSuiteActive, undefined);
@@ -243,6 +247,8 @@ export function SuiteCard({
           ))}
         </ul>
       )}
+
+      {canEdit && photos && <PhotoManager motelId={motelId} suiteId={suite.id} photos={photos} />}
 
       {canEdit && (
         <div className="suite-actions">
