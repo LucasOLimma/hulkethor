@@ -326,21 +326,28 @@ a { color: var(--primary); }
   .auth-perks span { display: none; }
 }
 @media (max-width: 860px) {
-  .auth { justify-content: center; align-items: flex-end; padding: 16px; }
-  .auth-photo-img { object-position: 30% center; }
+  .auth { display: block; padding: 0 16px 28px; }
+  /* foto numa faixa no topo, enquadrando a cama e o letreiro */
+  .auth-photo { bottom: auto; height: 50vh; }
+  .auth-photo-img { object-position: 22% 62%; }
   .auth-photo-shade {
-    background: linear-gradient(to top, rgba(5, 4, 4, 0.92) 0%, rgba(5, 4, 4, 0.55) 45%, rgba(5, 4, 4, 0.1) 75%);
+    background: linear-gradient(to bottom, rgba(11, 10, 11, 0) 40%, rgba(11, 10, 11, 0.85) 82%, #0b0a0b 100%);
   }
   .auth-perks { display: none; }
   .auth-card {
-    margin-top: 22vh;
-    padding: 30px 22px 24px;
+    margin: 36vh auto 0;
+    padding: 26px 20px 22px;
     border-radius: 24px;
+    background: rgba(14, 12, 14, 0.9);
   }
-  .logo { margin-bottom: 18px; }
-  .logo-mark { width: 52px; height: 46px; }
-  .logo-name { font-size: 1.9rem; }
-  .auth-title { font-size: 1.2rem; margin-bottom: 20px; }
+  .logo { margin-bottom: 14px; }
+  .logo-mark { width: 44px; height: 39px; margin-bottom: 6px; }
+  .logo-name { font-size: 1.75rem; }
+  .logo-tagline { font-size: 0.66rem; }
+  .auth-title { font-size: 1.12rem; margin-bottom: 18px; }
+  .auth-form { gap: 12px; }
+  .input-wrap input { padding: 14px 50px 14px 52px; }
+  .btn-primary { padding: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
