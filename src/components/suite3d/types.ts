@@ -43,3 +43,25 @@ export type SuiteInfo = {
   prices: { label: string; value: string }[];
   photos: string[];
 };
+
+// ---------- Tour 360 com fotos reais ----------
+// Cada "ambiente" e uma foto panoramica 360 (formato equirretangular, 2:1).
+// Angulos em GRAUS: yaw 0 = centro da foto, positivo para a direita;
+// pitch 0 = horizonte, positivo para cima.
+
+export type TourHotspot =
+  | { kind: "info"; id: string; yaw: number; pitch: number; title: string; text: string }
+  | { kind: "link"; id: string; yaw: number; pitch: number; to: string; label: string };
+
+export type TourScene = {
+  id: string;
+  label: string;
+  /** Endereco da foto 360 (ex.: /tour/demo/quarto.jpg) */
+  image: string;
+  /** Para onde a visao aponta ao entrar no ambiente */
+  yaw?: number;
+  pitch?: number;
+  hotspots: TourHotspot[];
+};
+
+export type Tour = { scenes: TourScene[]; start?: string };
