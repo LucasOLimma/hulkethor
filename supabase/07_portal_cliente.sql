@@ -21,7 +21,8 @@
 --   * "Minha Reserva": consulta e cancelamento com codigo + celular, com
 --     limite de tentativas contra adivinhacao.
 --
--- Rode o arquivo inteiro de uma vez. O fim mostra como desfazer.
+-- Rode o arquivo inteiro de uma vez. Pode rodar DE NOVO sem problema: o que
+-- ja existe e mantido e o que faltar e criado. O fim mostra como desfazer.
 -- =====================================================================
 
 
@@ -60,14 +61,16 @@ end $$;
 grant execute on function public._try_uuid(text) to authenticated;
 
 -- caminho do arquivo: <motel_id>/<suite_id>/<arquivo>. So o dono do motel.
+drop policy if exists suite_photos_upload on storage.objects;
 create policy suite_photos_upload on storage.objects for insert to authenticated
   with check (bucket_id = 'suite-photos'
               and public.has_role(public._try_uuid((storage.foldername(name))[1]), array['dono']));
+drop policy if exists suite_photos_remove on storage.objects;
 create policy suite_photos_remove on storage.objects for delete to authenticated
   using (bucket_id = 'suite-photos'
          and public.has_role(public._try_uuid((storage.foldername(name))[1]), array['dono']));
 
-create table public.suite_photos (
+create table if not exists public.suite_photos (
   id          uuid primary key default gen_random_uuid(),
   motel_id    uuid not null references public.motels(id) on delete cascade,
   suite_id    uuid not null,
@@ -77,7 +80,7 @@ create table public.suite_photos (
   foreign key (motel_id, suite_id) references public.suites (motel_id, id) on delete cascade,
   check (path like motel_id::text || '/' || suite_id::text || '/%' and length(path) <= 200)
 );
-create index on public.suite_photos (suite_id, position);
+create index if not exists suite_photos_suite_pos on public.suite_photos (suite_id, position);
 
 create or replace function public._suite_photos_limit()
 returns trigger language plpgsql security definer set search_path = public as $$
@@ -88,12 +91,15 @@ begin
   return new;
 end $$;
 revoke all on function public._suite_photos_limit() from public, anon, authenticated;
+drop trigger if exists trg_suite_photos_limit on public.suite_photos;
 create trigger trg_suite_photos_limit before insert on public.suite_photos
   for each row execute function public._suite_photos_limit();
 
 alter table public.suite_photos enable row level security;
+drop policy if exists suite_photos_select on public.suite_photos;
 create policy suite_photos_select on public.suite_photos for select to authenticated
   using (public.is_member(motel_id));
+drop policy if exists suite_photos_write on public.suite_photos;
 create policy suite_photos_write on public.suite_photos for all to authenticated
   using (public.has_role(motel_id, array['dono'])) with check (public.has_role(motel_id, array['dono']));
 revoke all on public.suite_photos from anon, authenticated;
@@ -205,14 +211,14 @@ grant execute on function public.public_request_reservation_v2(text, uuid, date,
 -- ---------- 6. MINHA RESERVA (codigo + celular) ----------
 
 -- tentativas de consulta (protecao contra adivinhacao). So as funcoes usam.
-create table public.public_lookup_attempts (
+create table if not exists public.public_lookup_attempts (
   id          bigint generated always as identity primary key,
   motel_id    uuid not null references public.motels(id) on delete cascade,
   code        text not null,
   success     boolean not null,
   created_at  timestamptz not null default now()
 );
-create index on public.public_lookup_attempts (motel_id, created_at);
+create index if not exists public_lookup_attempts_motel on public.public_lookup_attempts (motel_id, created_at);
 alter table public.public_lookup_attempts enable row level security;
 revoke all on public.public_lookup_attempts from anon, authenticated;
 
