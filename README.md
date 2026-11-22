@@ -37,6 +37,19 @@ A tela de login usa uma **fotografia real** em `public/login/suite.jpg` (horizon
 largura, JPG). Para trocar, substitua o arquivo. Use uma foto do próprio motel ou com licença de uso
 comercial. Sem o arquivo, a tela mostra um fundo escuro neutro.
 
+## Reservas (equipe)
+
+- `/painel/[id]/reservas`: dono e recepção criam, editam (enquanto confirmada) e mudam a situação das
+  reservas; camareira não tem acesso (mesma regra do banco). Não há exclusão (o banco não permite).
+- Situações: confirmada → em andamento (chegada) / cancelada / não compareceu; em andamento → concluída (saída).
+- Conflito de horário: recusa reserva que se sobreponha a outra confirmada ou em andamento na mesma suíte,
+  com **30 min de limpeza** entre elas; pernoite vai até **12h do dia seguinte**
+  (`src/lib/reservations.ts`: `CLEANING_MINUTES`, `OVERNIGHT_CHECKOUT`).
+- Código único de 6 caracteres por reserva; valor sugerido pela tabela de preços da suíte; confirmação de
+  maioridade obrigatória; cada ação vai para `audit_logs` (`log_audit`).
+- Limitação: a checagem de conflito é feita no servidor do app. Duas pessoas salvando a mesma suíte no
+  mesmo segundo ainda poderiam passar; a proteção total exige uma regra no banco (ver próximos passos).
+
 ## Área do proprietário (multi-motel)
 
 Fluxo: **login → Meus estabelecimentos (`/painel`) → painel do motel (`/painel/[id]`)**.
