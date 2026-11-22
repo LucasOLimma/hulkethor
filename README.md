@@ -31,6 +31,12 @@ O banco já foi criado com [`supabase/01_base_multi_motel.sql`](supabase/01_base
    ```
    Depois abra http://localhost:3000.
 
+## Foto do login
+
+A tela de login usa uma **fotografia real** em `public/login/suite.jpg` (horizontal, ~2400 px de
+largura, JPG). Para trocar, substitua o arquivo. Use uma foto do próprio motel ou com licença de uso
+comercial. Sem o arquivo, a tela mostra um fundo escuro neutro.
+
 ## Telas
 
 | Endereço | O que faz |

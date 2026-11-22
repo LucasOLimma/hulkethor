@@ -60,98 +60,153 @@ body {
 a { color: var(--primary); }
 
 /* ===================== TELAS DE ACESSO ===================== */
+/* Sempre escuras e sobrias: preto, grafite, champanhe, bege e branco suave.
+   As variaveis abaixo valem so dentro de .auth (o painel nao muda). */
 .auth {
+  --bg: #0d0c0d;
+  --surface: #141316;
+  --text: #f3efe8;
+  --muted: #a39b91;
+  --border: #2c2a2e;
+  --input-bg: #1a191c;
+  --primary: #c8a96e;
+  --primary-hover: #d6bb86;
+  --primary-text: #17130c;
+  --focus: rgba(200, 169, 110, 0.22);
+  --error-bg: #2a1716;
+  --error-border: #4d2826;
+  --error-text: #f0b4aa;
+  --ok-bg: #16231a;
+  --ok-border: #2c4634;
+  --ok-text: #b5dcc0;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  color-scheme: dark;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 65fr) minmax(400px, 35fr);
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* Painel da marca (esquerda) */
-.auth-brand {
+/* ---------- fotografia (esquerda) ---------- */
+.auth-photo {
   position: relative;
   overflow: hidden;
+  /* fundo neutro enquanto a foto carrega (ou se ainda nao houver foto) */
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(150, 110, 60, 0.22), transparent 60%),
+    linear-gradient(160deg, #1b1714 0%, #0e0c0b 70%);
+}
+.auth-photo-img { object-fit: cover; object-position: center; }
+.auth-photo-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(8, 7, 7, 0.88) 0%, rgba(8, 7, 7, 0.35) 42%, rgba(8, 7, 7, 0.15) 65%, rgba(8, 7, 7, 0.55) 100%),
+    linear-gradient(to right, rgba(8, 7, 7, 0.25), transparent 40%);
+}
+.auth-photo-content {
+  position: relative;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 48px 56px;
-  color: #fbeff3;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(214, 170, 92, 0.18), transparent 40%),
-    linear-gradient(150deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
+  padding: 44px 56px 40px;
 }
-.auth-brand-glow {
-  position: absolute;
-  width: 520px;
-  height: 520px;
-  right: -180px;
-  bottom: -200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 140, 180, 0.28), transparent 65%);
-  pointer-events: none;
+.auth-photo-text { margin-top: auto; margin-bottom: 36px; max-width: 640px; }
+.auth-photo-text h2 {
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2.3rem, 3.6vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: #f6f1e9;
+  text-wrap: balance;
 }
-.auth-brand-top { display: flex; align-items: center; gap: 12px; position: relative; }
-.auth-brand-body { position: relative; max-width: 440px; }
-.auth-brand-body h2 {
-  font-size: clamp(1.9rem, 3vw, 2.6rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin: 10px 0 16px;
-  font-weight: 700;
-}
-.eyebrow {
-  margin: 0;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--gold);
-}
-.brand-copy { margin: 0; color: rgba(251, 239, 243, 0.78); font-size: 1rem; }
-.auth-brand-foot {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-size: 0.85rem;
-  color: rgba(251, 239, 243, 0.65);
-}
+.auth-photo-text p { margin: 0; color: rgba(243, 237, 228, 0.78); font-size: 1.02rem; max-width: 440px; }
 
+.auth-perks {
+  list-style: none;
+  margin: 0;
+  padding: 22px 0 0;
+  border-top: 1px solid rgba(232, 220, 203, 0.16);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  font-size: 0.85rem;
+  color: rgba(232, 220, 203, 0.8);
+}
+.auth-perks li { display: flex; align-items: center; gap: 8px; }
+.auth-perks svg { color: var(--primary); }
+
+/* ---------- logotipo ---------- */
+.logo { display: inline-flex; align-items: center; gap: 12px; }
 .logo-mark {
-  display: inline-grid;
+  display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 11px;
-  color: #2a0a16;
-  background: linear-gradient(135deg, #f0d39c, var(--gold));
-  box-shadow: 0 6px 18px rgba(214, 170, 92, 0.35);
+  border: 1px solid rgba(200, 169, 110, 0.7);
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--primary);
 }
-.logo-mark.small { width: 34px; height: 34px; border-radius: 9px; }
-.logo-text { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  letter-spacing: 0.02em;
+  color: #f3efe8;
+}
+.logo-text small {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
 
-/* Formulario (direita) */
+/* ---------- painel de login (direita) ---------- */
 .auth-main {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: 48px 40px;
+  background: #111012;
+  border-left: 1px solid #1f1d21;
 }
-.auth-panel { width: 100%; max-width: 380px; }
-.auth-panel h1 { font-size: 1.75rem; letter-spacing: -0.02em; margin: 0 0 6px; }
-.auth-panel .subtitle { color: var(--muted); margin: 0 0 28px; }
+.auth-panel { width: 100%; max-width: 360px; }
+.auth-panel h1 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 2rem;
+  letter-spacing: -0.005em;
+}
+.auth-panel .subtitle { color: var(--muted); margin: 0 0 32px; font-size: 0.95rem; }
 .auth-mobile-logo { display: none; }
 
 .auth-form { display: flex; flex-direction: column; gap: 18px; }
 
-.field { display: flex; flex-direction: column; gap: 7px; }
-.field label { font-size: 0.88rem; font-weight: 600; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 
 .input-wrap { position: relative; display: flex; align-items: center; }
 .input-icon {
   position: absolute;
-  left: 13px;
+  left: 14px;
   display: flex;
   color: var(--muted);
   pointer-events: none;
@@ -160,22 +215,27 @@ a { color: var(--primary); }
   width: 100%;
   font: inherit;
   font-size: 0.98rem;
-  padding: 12px 44px 12px 42px;
+  padding: 13px 44px 13px 44px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--input-bg);
   color: var(--text);
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.input-wrap input::placeholder { color: var(--muted); opacity: 0.7; }
-.input-wrap input:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
+.input-wrap input::placeholder { color: var(--muted); opacity: 0.55; }
+.input-wrap input:hover { border-color: #3b383d; }
 .input-wrap input:focus {
   outline: none;
   border-color: var(--primary);
-  background: var(--surface);
-  box-shadow: 0 0 0 4px var(--focus);
+  box-shadow: 0 0 0 3px var(--focus);
 }
 .input-wrap:focus-within .input-icon { color: var(--primary); }
+/* preenchimento automatico do navegador sem fundo amarelo */
+.input-wrap input:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset;
+  caret-color: var(--text);
+}
 
 .toggle-visibility {
   position: absolute;
@@ -186,32 +246,33 @@ a { color: var(--primary); }
   height: 34px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
 }
-.toggle-visibility:hover { color: var(--text); background: var(--border); }
+.toggle-visibility:hover { color: var(--text); }
 .toggle-visibility:focus-visible { outline: 2px solid var(--primary); }
 
-.small-link { font-size: 0.85rem; font-weight: 600; text-decoration: none; }
-.small-link:hover { text-decoration: underline; }
+.small-link { font-size: 0.85rem; font-weight: 500; text-decoration: none; }
+.small-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.auth .small-link { color: var(--primary); }
 
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: 4px;
+  margin-top: 6px;
   font: inherit;
-  font-weight: 650;
-  font-size: 1rem;
-  padding: 13px 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  padding: 14px 16px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--primary-text);
   background: var(--primary);
-  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--primary) 70%, transparent);
   cursor: pointer;
   transition: background 0.15s, transform 0.05s;
 }
@@ -223,8 +284,8 @@ a { color: var(--primary); }
 .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: currentColor;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -236,23 +297,36 @@ a { color: var(--primary); }
   gap: 10px;
   margin: 0 0 4px;
   padding: 11px 13px;
-  border-radius: 10px;
-  font-size: 0.92rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   border: 1px solid transparent;
 }
 .alert svg { flex: none; margin-top: 1px; }
 .alert.error { background: var(--error-bg); border-color: var(--error-border); color: var(--error-text); }
 .alert.ok { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-text); }
 
-.auth-footer { margin: 24px 0 0; text-align: center; }
+.auth-footer { margin: 28px 0 0; text-align: center; }
+.auth-note {
+  margin: 32px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+}
 
-/* Celular e tablet: o painel da marca some e o logo aparece no topo */
-@media (max-width: 860px) {
-  .auth { grid-template-columns: 1fr; }
-  .auth-brand { display: none; }
-  .auth-main { align-items: flex-start; padding: 48px 16px; }
-  .auth-mobile-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
-  .auth-mobile-logo .logo-mark { color: #2a0a16; }
+/* ---------- tablet e celular: foto no topo, login embaixo ---------- */
+@media (max-width: 900px) {
+  .auth { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .auth-photo { min-height: 42vh; }
+  .auth-photo-content { padding: 22px 20px 24px; }
+  .auth-photo-text { margin-bottom: 0; }
+  .auth-photo-text h2 { font-size: 2rem; margin-bottom: 8px; }
+  .auth-photo-text p { font-size: 0.92rem; }
+  .auth-perks { display: none; }
+  .auth-main { align-items: flex-start; padding: 32px 20px 40px; border-left: 0; }
+  .auth-panel h1 { font-size: 1.7rem; }
+  .auth-panel .subtitle { margin-bottom: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
