@@ -22,7 +22,7 @@ export type ReservationRow = {
   created_at: string;
 };
 
-export type SuiteRow = { id: string; number: string; type: string; active: boolean };
+export type SuiteRow = { id: string; number: string; type: string; active: boolean; prices_cents: unknown; items: string[] | null };
 
 export type SuiteOpStatus = "livre" | "ocupada" | "reservada" | "desativada";
 
@@ -64,11 +64,17 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
   const motelId = ctx.motel.id; // ja conferido no banco por requireMotel
   const today = todayIn(ctx.motel.timezone);
   const from = addDays(today, -(days - 1));
+  const prevFrom = addDays(from, -days); // periodo anterior, mesmo tamanho
+  const monthStart = `${today.slice(0, 8)}01`;
+  const dayOfMonth = Number(today.slice(8, 10));
+  const prevMonthStart = addDays(monthStart, -1).slice(0, 8) + "01";
+  const prevMonthSameDay = addDays(prevMonthStart, dayOfMonth - 1); // mes anterior ate o mesmo dia
+  const fetchFrom = prevFrom < prevMonthStart ? prevFrom : prevMonthStart;
   const canSeeReservations = ctx.role === "dono" || ctx.role === "recepcao";
 
   const suitesQ = ctx.supabase
     .from("suites")
-    .select("id, number, type, active")
+    .select("id, number, type, active, prices_cents, items")
     .eq("motel_id", motelId);
 
   const cols = "id, code, guest_name, stay_date, period, arrival_time, total_cents, status, suite_id, created_at";
@@ -77,9 +83,9 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
         .from("reservations")
         .select(cols)
         .eq("motel_id", motelId)
-        .gte("stay_date", from)
+        .gte("stay_date", fetchFrom)
         .lte("stay_date", today)
-        .limit(5000)
+        .limit(10000)
     : null;
   // reservas de ontem/hoje: para saber quais suites estao ocupadas agora
   // (pernoite atravessa a meia-noite)
@@ -102,22 +108,43 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
   const suites = ((suitesR.data ?? []) as SuiteRow[]).sort((a, b) =>
     a.number.localeCompare(b.number, "pt-BR", { numeric: true }),
   );
-  const periodRows = (periodR?.data ?? []) as ReservationRow[];
+  const allRows = (periodR?.data ?? []) as ReservationRow[];
+  const periodRows = allRows.filter((r) => r.stay_date >= from);
+  const prevRows = allRows.filter((r) => r.stay_date >= prevFrom && r.stay_date < from);
   const nowRows = (nowR?.data ?? []) as ReservationRow[];
   const recent = (recentR?.data ?? []) as ReservationRow[];
 
   const valid = periodRows.filter((r) => VALID_STATUSES.includes(r.status));
   const revenueCents = valid.reduce((sum, r) => sum + r.total_cents, 0);
-  const served = periodRows.filter((r) => r.status === "chegou" || r.status === "concluida").length;
+  const isServed = (r: ReservationRow) => r.status === "chegou" || r.status === "concluida";
+  const served = periodRows.filter(isServed).length;
+  // periodo anterior (para as setas de variacao)
+  const prevValid = prevRows.filter((r) => VALID_STATUSES.includes(r.status));
+  const prev = {
+    revenueCents: prevValid.reduce((sum, r) => sum + r.total_cents, 0),
+    reservations: prevValid.length,
+    served: prevRows.filter(isServed).length,
+  };
+  // mes atual ate hoje x mes anterior ate o mesmo dia
+  const validAll = allRows.filter((r) => VALID_STATUSES.includes(r.status));
+  const monthRevenue = validAll.filter((r) => r.stay_date >= monthStart).reduce((s2, r) => s2 + r.total_cents, 0);
+  const prevMonthRevenue = validAll
+    .filter((r) => r.stay_date >= prevMonthStart && r.stay_date <= prevMonthSameDay)
+    .reduce((s2, r) => s2 + r.total_cents, 0);
+  const monthDaily = Array.from({ length: dayOfMonth }, (_, i) => addDays(monthStart, i)).map((date) => ({
+    date,
+    revenueCents: validAll.filter((r) => r.stay_date === date).reduce((s2, r) => s2 + r.total_cents, 0),
+  }));
 
   // serie diaria (todos os dias do periodo, inclusive os sem reserva)
-  const daily = Array.from({ length: days }, (_, i) => ({ date: addDays(from, i), revenueCents: 0, reservations: 0 }));
+  const daily = Array.from({ length: days }, (_, i) => ({ date: addDays(from, i), revenueCents: 0, reservations: 0, served: 0 }));
   const byDate = new Map(daily.map((d) => [d.date, d]));
   for (const r of valid) {
     const d = byDate.get(r.stay_date);
     if (d) {
       d.revenueCents += r.total_cents;
       d.reservations += 1;
+      if (isServed(r)) d.served += 1;
     }
   }
 
@@ -153,6 +180,13 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
     .filter((x) => x.suite)
     .sort((a, b) => b.count - a.count || b.revenueCents - a.revenueCents)
     .slice(0, 4);
+  // vitrine: as mais reservadas; completa com as demais suites ativas
+  const showcase = [
+    ...topSuites.map((t) => ({ suite: t.suite!, count: t.count, revenueCents: t.revenueCents })),
+    ...suites
+      .filter((x) => x.active && !perSuite.has(x.id))
+      .map((x) => ({ suite: x, count: 0, revenueCents: 0 })),
+  ].slice(0, 3);
 
   return {
     today,
@@ -160,6 +194,9 @@ export async function loadDashboard(ctx: Ctx, days: PeriodDays) {
     days,
     error,
     canSeeReservations,
+    prev,
+    month: { revenueCents: monthRevenue, prevRevenueCents: prevMonthRevenue, daily: monthDaily, start: monthStart },
+    showcase,
     kpis: {
       revenueCents,
       reservations: valid.length,
