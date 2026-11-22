@@ -86,3 +86,12 @@ O fim mostra como desfazer.
 - `public_request_reservation_v2`: pedido com celular (usa as mesmas validações do 03).
 - `public_my_reservation` / `public_cancel_reservation`: código + celular. Limite contra adivinhação: 5 erros no
   mesmo código, ou 200 no motel, em 15 minutos, bloqueiam por 15 minutos.
+
+## 08_mapa_ao_vivo.sql (precisa do 01 ao 07 antes)
+
+**Mapa das suítes ao vivo** e base da **previsão**. Não cria tabela nem altera dados; pode rodar de novo.
+- `suite_board(motel)`: situação de cada suíte agora (ocupada + saída prevista, em limpeza + desde quando, com
+  problema, livre + próxima reserva do dia, desativada) e o **tempo médio real de limpeza** (da saída até liberar,
+  últimos 30 dias, por suíte e do motel). Para toda a equipe, **sem nenhum dado de hóspede**.
+- Liga o **tempo real** do Supabase (Realtime) nas tabelas de limpeza e reservas. O Realtime respeita o RLS: cada
+  pessoa só recebe o que já podia ver.
