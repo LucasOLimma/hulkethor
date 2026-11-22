@@ -37,7 +37,8 @@ O banco já foi criado com [`supabase/01_base_multi_motel.sql`](supabase/01_base
 |---|---|
 | `/login` | Entrar com e-mail e senha. Se errar, a mensagem é sempre "E-mail ou senha incorretos." |
 | `/esqueci-senha` | Envia o link de nova senha. A resposta é sempre a mesma, exista o e-mail ou não. |
-| `/auth/confirm` | Destino do link do e-mail. Valida o link e leva para `/redefinir-senha`. |
+| `/auth/confirm` | Destino do link do e-mail de recuperação. Valida o link e leva para `/redefinir-senha`. |
+| `/auth/convite` | Destino do link do e-mail de convite. Abre a sessão e leva para `/redefinir-senha`. |
 | `/redefinir-senha` | Criar a nova senha (só com sessão aberta). |
 | `/painel` | Página protegida: nome do motel e perfil, lidos de `motel_members` + `motels`. |
 | `/painel/equipe/[id do motel]` | **Só para o dono:** convidar pessoas, trocar perfil, desativar/reativar. |
@@ -48,8 +49,9 @@ O botão **Sair** fica no painel.
 
 1. Em `.env.local`, adicione a chave secreta **só para o servidor**:
    `SUPABASE_SECRET_KEY=sb_secret_...` (ou a antiga `service_role`). **Sem** `NEXT_PUBLIC_` na frente.
-2. No Supabase, em **Authentication → Emails → Invite user**, troque o link do e-mail por:
-   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite`
+2. No Supabase, em **Authentication → URL Configuration → Redirect URLs**, adicione
+   `http://localhost:3000/auth/convite` (destino do link do e-mail de convite).
+   O modelo de e-mail padrão do Supabase funciona como está, sem editar nada.
 
 A chave secreta é usada só em `src/lib/supabase/admin.ts` (marcado `server-only`) e só depois de o
 banco confirmar que quem pediu é **dono ativo** do motel. Ela serve apenas para enviar o convite e para

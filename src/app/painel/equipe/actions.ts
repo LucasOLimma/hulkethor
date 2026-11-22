@@ -40,8 +40,9 @@ export async function inviteMember(_prev: TeamState, formData: FormData): Promis
 
   // 2) Cria a conta e envia o e-mail de convite (precisa da chave secreta).
   const admin = createAdminClient();
+  // O link do e-mail (modelo padrao do Supabase) leva para /auth/convite.
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${getSiteUrl()}/auth/confirm`,
+    redirectTo: `${getSiteUrl()}/auth/convite`,
   });
   if (inviteError || !invited?.user) {
     if (
